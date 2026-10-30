@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "IPM Motors Abidjan",
+  "short_name": "IPM Motors",
+  "description": "Concessionnaire automobile de prestige à Abidjan. Véhicules 100% neufs 0 km.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "/public/assets/aistudio/image_150e736b.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/public/assets/aistudio/image_150e736b.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/public/assets/aistudio/image_150e736b.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

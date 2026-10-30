@@ -1,0 +1,6 @@
+{
+  "name": "IPM MOTORS",
+  "description": "Concessionnaire automobile premium à Abidjan, Côte d'Ivoire. Vente exclusive de véhicules neufs 0 km.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

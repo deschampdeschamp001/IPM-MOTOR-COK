@@ -107,12 +107,10 @@ export const Hero: React.FC = () => {
                   e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
                 }}
               />
-              {/* Gradient Scrim avec dégradé blanc / clair pour lisibilité parfaite */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/70 to-black/30" />
-              {/* Dégradé blanc et contraste subtil demandé par l'utilisateur */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-white/15" />
-              <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/10 to-transparent pointer-events-none" />
-              <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
+              {/* Dégradé noir profond et homogène pour lisibilité parfaite des textes et de la barre de recherche */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/55 z-1" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-black/50 to-black/40 z-1" />
+              <div className="absolute inset-0 bg-black/35 z-1" />
             </div>
           ))}
         </div>

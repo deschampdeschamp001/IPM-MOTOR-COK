@@ -1,102 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { Link } from '../router/Router';
-import { ArrowRight, Calendar, Clock, Tag } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const parseDateBadge = (dateStr: string) => {
+  if (!dateStr) return { day: '4', month: 'Mai' };
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const mIdx = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10).toString();
+    return { day, month: months[mIdx] || 'Mai' };
+  }
+  const tokens = dateStr.trim().split(/\s+/);
+  if (tokens.length >= 2 && !isNaN(parseInt(tokens[0], 10))) {
+    return { day: tokens[0], month: tokens[1].slice(0, 4) };
+  }
+  return { day: '4', month: 'Mai' };
+};
 
 export const NewsPage: React.FC = () => {
   const { newsArticles } = useData();
   const [selectedCategory, setSelectedCategory] = useState<string>('Tous');
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
     document.title = 'Magazine & Actualités 0 km | IPM Motors Abidjan';
   }, []);
 
-  const publishedArticles = newsArticles.filter(n => n.is_published);
-
+  const publishedArticles = newsArticles.filter((n) => n.is_published);
   const categories = ['Tous', 'Offres Spéciales', 'Nouveautés 0 km', 'Électrique & Hybride', 'Tout-Terrain'];
 
-  const filteredArticles = selectedCategory === 'Tous'
-    ? publishedArticles
-    : publishedArticles.filter(a => a.category.toLowerCase() === selectedCategory.toLowerCase());
+  const filteredArticles =
+    selectedCategory === 'Tous'
+      ? publishedArticles
+      : publishedArticles.filter((a) => a.category.toLowerCase() === selectedCategory.toLowerCase());
 
-  const featured = publishedArticles.find(a => a.is_featured) || publishedArticles[0];
+  // Pagination (6 articles per page matching Image 2 3x2 grid)
+  const itemsPerPage = 6;
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / itemsPerPage));
+  const currentArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="pt-24 sm:pt-32 pb-24 max-w-[1550px] mx-auto px-8 sm:px-14 md:px-18 lg:px-24 xl:px-32 2xl:px-44">
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <span className="eyebrow block mb-2">Magazine Automobile</span>
-        <h1 className="font-heading font-light text-3xl sm:text-5xl tracking-tight">
+    <div className="pt-24 sm:pt-32 pb-24 max-w-[1550px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 xl:px-28">
+      {/* En-tête simple et aéré */}
+      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+        <span className="eyebrow block mb-2">Magazine Automobile & Nouveautés</span>
+        <h1 className="font-heading font-light text-3xl sm:text-5xl tracking-tight text-[var(--fg)]">
           L’Actualité <span className="font-semibold text-[#e10600]">IPM Motors</span>
         </h1>
-        <p className="text-sm sm:text-base text-[#6b6b72] mt-3 font-light">
-          Retrouvez nos analyses sur les nouveaux arrivages 0 km à Abidjan, les offres promotionnelles et les tendances de l'automobile mondiale.
+        <p className="text-sm sm:text-base text-[#6b6b72] mt-3 font-light leading-relaxed">
+          Retrouvez nos arrivages officiels 0 km à Abidjan, nos analyses techniques et les conseils de nos experts automobiles.
         </p>
       </div>
 
-      {/* Featured Article Banner (if available) */}
-      {featured && selectedCategory === 'Tous' && (
-        <div className="mb-16">
-          <Link
-            to={`/actualites/${featured.slug || featured.id}`}
-            className="group block rounded-3xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-sm hover:border-[#e10600] transition-all duration-300 hover:shadow-xl"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12">
-              <div className="lg:col-span-7 relative aspect-[16/10] lg:aspect-auto overflow-hidden bg-zinc-950">
-                <img
-                  src={featured.cover_image}
-                  alt={featured.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  onError={(e) => {
-                    e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
-                  }}
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase bg-[#e10600] text-white shadow-sm">
-                    À la Une
-                  </span>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 p-8 sm:p-10 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-3 text-xs text-[#6b6b72] mb-3 font-mono">
-                    <span>{featured.category}</span>
-                    <span>•</span>
-                    <span>{featured.published_at}</span>
-                    <span>•</span>
-                    <span>{featured.read_time || '3 min'}</span>
-                  </div>
-
-                  <h2 className="font-heading font-light text-2xl sm:text-3xl leading-snug group-hover:text-[#e10600] transition-colors mb-4">
-                    {featured.title}
-                  </h2>
-
-                  <p className="text-xs sm:text-sm text-[#6b6b72] font-light leading-relaxed line-clamp-3">
-                    {featured.excerpt}
-                  </p>
-                </div>
-
-                <div className="pt-6 mt-6 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[#e10600]">
-                  <span>Lire l’article complet</span>
-                  <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      )}
-
-      {/* Category Filter Pills */}
-      <div className="flex flex-wrap items-center gap-2 mb-10 pb-4 border-b border-[var(--border)]">
+      {/* Filtres par catégorie */}
+      <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`pill-btn px-4 py-2 text-xs font-semibold transition-all ${
+            onClick={() => {
+              setSelectedCategory(cat);
+              setCurrentPage(1);
+            }}
+            className={`pill-btn px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
               selectedCategory === cat
                 ? 'bg-[#e10600] text-white shadow-sm'
-                : 'bg-[var(--surface)] text-[#6b6b72] hover:text-[var(--fg)] border border-[var(--border)]'
+                : 'bg-white dark:bg-zinc-900 text-[#6b6b72] hover:text-[var(--fg)] border border-zinc-200 dark:border-zinc-800'
             }`}
           >
             {cat}
@@ -104,64 +74,125 @@ export const NewsPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Grid of Articles */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredArticles.map((article) => {
+      {/* Grille d'articles fidèle à l'Image 2 (Bords carrés, badge date orange/ambre bas-droite de la photo, titre vert foncé) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+        {currentArticles.map((article) => {
           const articleSlug = article.slug || article.id;
+          const { day, month } = parseDateBadge(article.published_at);
+
           return (
             <article
               key={article.id}
-              className="group rounded-3xl border border-[var(--border)] bg-[var(--card)] overflow-hidden flex flex-col justify-between hover:border-[#e10600] transition-all duration-300 hover:shadow-lg"
+              className="group flex flex-col justify-between bg-white dark:bg-zinc-900/60 rounded-xl overflow-hidden transition-all duration-300"
             >
               <div>
-                <Link to={`/actualites/${articleSlug}`} className="block relative aspect-[16/10] overflow-hidden bg-zinc-950">
-                  <img
-                    src={article.cover_image}
-                    alt={article.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
-                    }}
-                  />
-                  <div className="absolute top-3 left-3">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-black/75 backdrop-blur-md text-white border border-white/20">
+                {/* Zone Image avec Badge Date en bas à droite (Exact style Image 2) */}
+                <div className="relative aspect-[16/10.5] overflow-hidden rounded-xl bg-zinc-950">
+                  <Link to={`/actualites/${articleSlug}`} className="block w-full h-full">
+                    <img
+                      src={article.cover_image}
+                      alt={article.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                      }}
+                    />
+                  </Link>
+
+                  {/* Badge Date en bas à droite exact Image 2 (Fond blanc pur, grand chiffre orange + mois en orange) */}
+                  <div className="absolute bottom-0 right-4 z-10 bg-white shadow-md rounded-t-lg px-3.5 py-1 text-center min-w-[56px] border border-b-0 border-zinc-100">
+                    <span className="block text-xl sm:text-2xl font-bold text-[#f39c12] leading-tight">
+                      {day}
+                    </span>
+                    <span className="block text-[11px] font-semibold text-[#f39c12] uppercase tracking-wider">
+                      {month}
+                    </span>
+                  </div>
+
+                  {/* Catégorie discrète en haut à gauche */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase bg-black/70 backdrop-blur-sm text-white">
                       {article.category}
                     </span>
                   </div>
-                </Link>
+                </div>
 
-                <div className="p-6">
-                  <div className="flex items-center gap-3 text-xs text-[#6b6b72] mb-2 font-mono">
-                    <span>{article.published_at}</span>
-                    <span>•</span>
-                    <span>{article.read_time || '3 min'}</span>
-                  </div>
-
+                {/* Corps de l'article : Titre vert sombre + résumé (Exact Image 2) */}
+                <div className="pt-4 pb-2">
                   <Link to={`/actualites/${articleSlug}`}>
-                    <h3 className="font-heading font-medium text-lg leading-snug group-hover:text-[#e10600] transition-colors line-clamp-2">
+                    <h2 className="font-heading font-bold text-base sm:text-lg leading-snug text-[#064e3b] dark:text-emerald-400 group-hover:text-emerald-700 transition-colors line-clamp-2">
                       {article.title}
-                    </h3>
+                    </h2>
                   </Link>
 
-                  <p className="text-xs text-[#6b6b72] mt-3 font-light leading-relaxed line-clamp-2">
+                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-light leading-relaxed mt-2.5 line-clamp-3">
                     {article.excerpt}
                   </p>
                 </div>
               </div>
 
-              <div className="px-6 pb-6 pt-2 border-t border-[var(--border)]">
+              {/* Lien discret de lecture */}
+              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-mono text-zinc-400">
+                  {article.read_time || '3 min de lecture'}
+                </span>
                 <Link
                   to={`/actualites/${articleSlug}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#e10600] group-hover:underline"
+                  className="inline-flex items-center gap-1 font-semibold text-[#064e3b] dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
                 >
-                  <span>Lire l'article</span>
+                  <span>Lire la suite</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </article>
           );
         })}
+      </div>
+
+      {/* Pagination style Image 2 : 1 2 3 4 5 centrée en bas */}
+      <div className="mt-16 flex items-center justify-center gap-3 sm:gap-4 text-sm font-semibold">
+        {currentPage > 1 && (
+          <button
+            type="button"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="p-2 text-zinc-500 hover:text-[#064e3b] transition-colors cursor-pointer"
+            aria-label="Page précédente"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
+        {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
+          const pageNum = idx + 1;
+          const isActive = currentPage === pageNum;
+          return (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => setCurrentPage(pageNum)}
+              className={`w-8 h-8 rounded flex items-center justify-center transition-colors cursor-pointer ${
+                isActive
+                  ? 'text-[#f39c12] font-bold text-base border-b-2 border-[#f39c12]'
+                  : 'text-zinc-500 hover:text-[#064e3b]'
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+
+        {currentPage < totalPages && (
+          <button
+            type="button"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="p-2 text-zinc-500 hover:text-[#064e3b] transition-colors cursor-pointer"
+            aria-label="Page suivante"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
       </div>
     </div>
   );

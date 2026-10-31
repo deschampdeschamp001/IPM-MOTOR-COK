@@ -5,55 +5,21 @@ import clientManImg from '../assets/images/client_delivery_man_1793375416666.jpg
 import clientCoupleImg from '../assets/images/client_delivery_couple_1793375435524.jpg';
 import clientKeysImg from '../assets/images/client_holding_keys_1793375456332.jpg';
 
-interface TestimonialItem {
-  id: string;
-  name: string;
-  date: string;
-  comment: string;
-  image: string;
-  avatarText: string;
-}
-
-const TESTIMONIALS: TestimonialItem[] = [
-  {
-    id: '1',
-    name: 'Alain',
-    date: 'il y a 6 jours',
-    comment: 'Le service client a traité ma demande avec un véritable professionnalisme. Mon véhicule 0 km a été préparé et livré clé en main.',
-    image: clientManImg,
-    avatarText: 'A',
-  },
-  {
-    id: '2',
-    name: 'Monsieur Idrissa',
-    date: 'il y a 6 jours',
-    comment: 'Je tire mon chapeau à l’équipe qui vient de changer nos habitudes en matière de transactions automobiles pour le mieux !',
-    image: clientCoupleImg,
-    avatarText: 'MI',
-  },
-  {
-    id: '3',
-    name: 'Mme Blédou',
-    date: 'il y a 6 jours',
-    comment: 'L’entreprise a reçu de nombreux avis positifs. Je suis très satisfaite du travail accompli et du dynamisme de l’équipe.',
-    image: clientKeysImg,
-    avatarText: 'MB',
-  },
-  {
-    id: '4',
-    name: 'Koffi Emmanuel',
-    date: 'il y a 2 semaines',
-    comment: 'Garantie constructeur confirmée et démarches de carte grise effectuées sans délai. Service impeccable à Bonoumin.',
-    image: clientManImg,
-    avatarText: 'KE',
-  },
-];
+import { getTestimonials, subscribeToTestimonials, TestimonialItem } from '../lib/testimonialsStorage';
 
 export const TestimonialsSection: React.FC = () => {
+  const [items, setItems] = useState<TestimonialItem[]>(() => getTestimonials());
   const [startIndex, setStartIndex] = useState(0);
 
+  React.useEffect(() => {
+    const unsub = subscribeToTestimonials((updated) => {
+      setItems(updated);
+    });
+    return unsub;
+  }, []);
+
   const maxVisible = 3;
-  const canGoNext = startIndex + maxVisible < TESTIMONIALS.length;
+  const canGoNext = startIndex + maxVisible < items.length;
   const canGoPrev = startIndex > 0;
 
   const handleNext = () => {
@@ -63,7 +29,7 @@ export const TestimonialsSection: React.FC = () => {
 
   const handlePrev = () => {
     if (canGoPrev) setStartIndex(prev => prev - 1);
-    else setStartIndex(TESTIMONIALS.length - maxVisible);
+    else setStartIndex(Math.max(0, items.length - maxVisible));
   };
 
   return (
@@ -147,7 +113,7 @@ export const TestimonialsSection: React.FC = () => {
           {/* Colonne droite : Slider horizontal des cartes de témoignages avec photos réelles */}
           <div className="lg:col-span-8 relative">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
-              {TESTIMONIALS.slice(startIndex, startIndex + maxVisible).map((item) => (
+              {items.slice(startIndex, startIndex + maxVisible).map((item: TestimonialItem) => (
                 <div
                   key={item.id}
                   className="bg-white dark:bg-[#141416] rounded-2xl overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-sm flex flex-col justify-between transition-all hover:shadow-md"

@@ -245,25 +245,104 @@ export const ModelsPage: React.FC = () => {
 
       {/* Conteneur principal split-view moderne avec défilement fluide et naturel */}
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-8">
-        {/* Colonne gauche : Panneau Filtres compact, fixe et tenant sur l'écran sans défilement */}
+        {/* Colonne gauche : Panneau Filtres compact, fixe et tenant entièrement sur l'écran sans défilement global */}
         <aside
           className={`
             ${mobileFilterOpen ? 'fixed inset-0 z-50 p-6 bg-white overflow-y-auto block' : 'hidden lg:block'}
-            lg:sticky lg:top-24 lg:self-start lg:w-72 xl:w-80 lg:shrink-0 lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto custom-scrollbar space-y-3 lg:pr-1
+            lg:sticky lg:top-20 lg:self-start lg:w-72 xl:w-76 lg:shrink-0 space-y-2.5 lg:pr-1
           `}
         >
           {mobileFilterOpen && (
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 lg:hidden mb-4">
-              <span className="font-heading font-bold text-base text-zinc-950">Filtres de recherche</span>
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 lg:hidden mb-3">
+              <span className="font-heading font-bold text-sm text-zinc-950">Filtres de recherche</span>
               <button onClick={() => setMobileFilterOpen(false)} className="p-2 text-zinc-600 hover:text-black">
                 <X className="w-5 h-5" />
               </button>
             </div>
           )}
 
-          {/* Bloc 1 : Type de véhicule (Fond Blanc, format compact) */}
-          <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-zinc-200/90 shadow-xs">
-            <div className="flex items-center justify-between mb-2.5">
+          {/* Bloc 1 : MARQUES (Recherche rapide + liste marques élégante et compacte) */}
+          <div className="p-3 rounded-xl bg-white border border-zinc-200/90 shadow-2xs">
+            <div className="flex items-center justify-between mb-1.5">
+              <h3 className="font-heading font-bold text-[11px] uppercase tracking-wider text-zinc-900">
+                Marques
+              </h3>
+              {selectedMarques.length > 0 && (
+                <button
+                  onClick={() => {
+                    const current = new URLSearchParams(searchParams);
+                    current.delete('marque');
+                    setSearchParams(current);
+                  }}
+                  className="text-[10px] text-[#e10600] font-semibold hover:underline"
+                >
+                  Effacer ({selectedMarques.length})
+                </button>
+              )}
+            </div>
+
+            {/* Barre de recherche marque rapide */}
+            <div className="relative mb-1.5">
+              <input
+                type="text"
+                placeholder="Filtrer une marque..."
+                value={brandSearch}
+                onChange={(e) => setBrandSearch(e.target.value)}
+                className="w-full pl-7 pr-2 py-1 text-xs rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#e10600]"
+              />
+              <Search className="w-3 h-3 text-zinc-400 absolute left-2 top-1/2 -translate-y-1/2" />
+            </div>
+
+            {/* Liste scrollable fluide et compacte uniquement pour les marques */}
+            <div className="space-y-0.5 max-h-32 overflow-y-auto overscroll-contain scroll-smooth pr-1 [scrollbar-width:thin] [scrollbar-color:#d4d4d8_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400">
+              {filteredBrands.map((brandName) => {
+                const count = vehicles.filter((v) => v.brand.toLowerCase() === brandName.toLowerCase()).length;
+                const isChecked = selectedMarques.includes(brandName);
+                const logoUrl = brandLogoMap[brandName.toLowerCase()];
+
+                return (
+                  <label
+                    key={brandName}
+                    className={`w-full px-2 py-1 rounded-md text-xs font-medium flex items-center justify-between transition-colors cursor-pointer select-none ${
+                      isChecked ? 'bg-[#e10600]/10 text-[#e10600] font-semibold' : 'text-zinc-700 hover:bg-zinc-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleMarque(brandName)}
+                        className="rounded border-zinc-300 text-[#e10600] focus:ring-[#e10600] w-3.5 h-3.5 cursor-pointer accent-[#e10600] shrink-0"
+                      />
+
+                      {logoUrl ? (
+                        <img
+                          src={logoUrl}
+                          alt={brandName}
+                          className="w-3.5 h-3.5 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-3.5 h-3.5 rounded bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[7px] font-bold text-zinc-600 shrink-0">
+                          {brandName.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+
+                      <span className="truncate text-xs">{brandName}</span>
+                    </div>
+
+                    <span className="text-zinc-400 font-mono text-[10px] shrink-0 ml-1">({count})</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bloc 2 : TYPE DE VÉHICULE (Format compact et net) */}
+          <div className="p-3 rounded-xl bg-white border border-zinc-200/90 shadow-2xs">
+            <div className="flex items-center justify-between mb-1.5">
               <h3 className="font-heading font-bold text-[11px] uppercase tracking-wider text-zinc-900">
                 Type de véhicule
               </h3>
@@ -288,7 +367,7 @@ export const ModelsPage: React.FC = () => {
                 return (
                   <label
                     key={t}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer select-none ${
+                    className={`w-full px-2 py-1 rounded-md text-xs font-medium flex items-center justify-between transition-colors cursor-pointer select-none ${
                       isChecked ? 'bg-[#e10600]/10 text-[#e10600] font-semibold' : 'text-zinc-700 hover:bg-zinc-50'
                     }`}
                   >
@@ -299,101 +378,18 @@ export const ModelsPage: React.FC = () => {
                         onChange={() => toggleType(t)}
                         className="rounded border-zinc-300 text-[#e10600] focus:ring-[#e10600] w-3.5 h-3.5 cursor-pointer accent-[#e10600]"
                       />
-                      <span>{t}</span>
+                      <span className="text-xs">{t}</span>
                     </div>
-                    <span className="opacity-60 font-mono text-[10px]">({count})</span>
+                    <span className="text-zinc-400 font-mono text-[10px]">({count})</span>
                   </label>
                 );
               })}
             </div>
           </div>
 
-          {/* Bloc 2 : Marques (Fond Blanc, format compact et fixe) */}
-          <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-zinc-200/90 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-heading font-bold text-[11px] uppercase tracking-wider text-zinc-900">
-                Marques
-              </h3>
-              {selectedMarques.length > 0 && (
-                <button
-                  onClick={() => {
-                    const current = new URLSearchParams(searchParams);
-                    current.delete('marque');
-                    setSearchParams(current);
-                  }}
-                  className="text-[10px] text-[#e10600] font-semibold hover:underline"
-                >
-                  Effacer ({selectedMarques.length})
-                </button>
-              )}
-            </div>
-
-            {/* Barre de recherche marque rapide */}
-            <div className="relative mb-2">
-              <input
-                type="text"
-                placeholder="Filtrer une marque..."
-                value={brandSearch}
-                onChange={(e) => setBrandSearch(e.target.value)}
-                className="w-full pl-7 pr-2.5 py-1 text-xs rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#e10600]"
-              />
-              <Search className="w-3 h-3 text-zinc-400 absolute left-2 top-1/2 -translate-y-1/2" />
-            </div>
-
-            {/* Liste scrollable fluide et ergonomique avec scrollbar élégante comme sur IMAGE 1 */}
-            <div className="space-y-1 max-h-48 overflow-y-auto overscroll-contain scroll-smooth pr-1.5 [scrollbar-width:thin] [scrollbar-color:#d4d4d8_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400">
-              {filteredBrands.map((brandName) => {
-                const count = vehicles.filter((v) => v.brand.toLowerCase() === brandName.toLowerCase()).length;
-                const isChecked = selectedMarques.includes(brandName);
-                const logoUrl = brandLogoMap[brandName.toLowerCase()];
-
-                return (
-                  <label
-                    key={brandName}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer select-none ${
-                      isChecked ? 'bg-[#e10600]/10 text-[#e10600] font-semibold' : 'text-zinc-700 hover:bg-zinc-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {/* 1. Case pour cocher */}
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleMarque(brandName)}
-                        className="rounded border-zinc-300 text-[#e10600] focus:ring-[#e10600] w-4 h-4 cursor-pointer accent-[#e10600] shrink-0"
-                      />
-
-                      {/* 2. Logo défini dans admin avant le nom */}
-                      {logoUrl ? (
-                        <img
-                          src={logoUrl}
-                          alt={brandName}
-                          className="w-4 h-4 object-contain shrink-0"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-4 h-4 rounded bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[8px] font-bold text-zinc-600 shrink-0">
-                          {brandName.slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
-
-                      {/* 3. Nom de la marque */}
-                      <span className="truncate">{brandName}</span>
-                    </div>
-
-                    {/* Compteur format (1) */}
-                    <span className="text-zinc-400 font-mono text-[11px] shrink-0 ml-1.5">({count})</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Bloc 3 : Motorisation / Énergie (Fond Blanc) */}
-          <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-zinc-200/90 shadow-xs">
-            <div className="flex items-center justify-between mb-2.5">
+          {/* Bloc 3 : MOTORISATION / ÉNERGIE (Format compact et net) */}
+          <div className="p-3 rounded-xl bg-white border border-zinc-200/90 shadow-2xs">
+            <div className="flex items-center justify-between mb-1.5">
               <h3 className="font-heading font-bold text-[11px] uppercase tracking-wider text-zinc-900">
                 Motorisation / Énergie
               </h3>
@@ -419,7 +415,7 @@ export const ModelsPage: React.FC = () => {
                 return (
                   <label
                     key={eng}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer select-none ${
+                    className={`w-full px-2 py-1 rounded-md text-xs font-medium flex items-center justify-between transition-colors cursor-pointer select-none ${
                       isChecked ? 'bg-[#e10600]/10 text-[#e10600] font-semibold' : 'text-zinc-700 hover:bg-zinc-50'
                     }`}
                   >
@@ -430,9 +426,9 @@ export const ModelsPage: React.FC = () => {
                         onChange={() => toggleEnergie(eng)}
                         className="rounded border-zinc-300 text-[#e10600] focus:ring-[#e10600] w-3.5 h-3.5 cursor-pointer accent-[#e10600]"
                       />
-                      <span>{eng}</span>
+                      <span className="text-xs">{eng}</span>
                     </div>
-                    <span className="opacity-60 font-mono text-[10px]">({count})</span>
+                    <span className="text-zinc-400 font-mono text-[10px]">({count})</span>
                   </label>
                 );
               })}

@@ -142,30 +142,25 @@ export const OffersPage: React.FC = () => {
     return (
       <div
         key={vehicle.id}
-        className="rounded-xl border border-zinc-200/90 bg-white overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow group"
+        className="rounded-2xl border border-zinc-200/80 bg-white overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-lg hover:border-zinc-300 transition-all duration-300 group"
       >
         <div>
-          {/* 1. PHOTO DU VÉHICULE AVEC FLÈCHE ET BADGE MARQUE FLOTTANT (Style Image 3) */}
+          {/* 1. PHOTO DU VÉHICULE AVEC BADGES PURS */}
           <Link
             to={`/vehicule/${vehicle.id}`}
-            className="block relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden"
+            className="block relative aspect-[16/10] bg-zinc-100 overflow-hidden"
           >
             <img
               src={mainImg}
               alt={`${vehicle.brand} ${vehicle.model}`}
-              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500 ease-out"
               onError={(e) => {
                 e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
               }}
             />
 
-            {/* Petite flèche droite style Image 3 */}
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/80 dark:bg-black/60 text-zinc-700 dark:text-zinc-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xs pointer-events-none">
-              <ChevronRight className="w-3.5 h-3.5" />
-            </div>
-
-            {/* Pastille ronde de logo de marque en bas à droite de l'image (Style Image 3) */}
-            <div className="absolute bottom-2 right-2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white shadow-md border border-zinc-100 flex items-center justify-center p-1 z-10">
+            {/* Pastille discrète de logo de marque en bas à droite */}
+            <div className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 backdrop-blur-xs shadow-md border border-zinc-100 flex items-center justify-center p-1.5 z-10">
               {brandLogo ? (
                 <img
                   src={brandLogo}
@@ -176,104 +171,86 @@ export const OffersPage: React.FC = () => {
                   }}
                 />
               ) : (
-                <span className="text-[10px] font-bold text-zinc-800 uppercase font-mono">
+                <span className="text-[9px] font-bold text-zinc-800 uppercase font-mono">
                   {vehicle.brand.slice(0, 2)}
                 </span>
               )}
             </div>
 
-            {/* Badge 0 KM subtil en haut à gauche */}
-            <div className="absolute top-2 left-2 flex items-center gap-1">
-              <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-black/75 text-white backdrop-blur-xs">
-                0 KM D'ORIGINE
+            {/* Badges 0 KM et VIP en haut à gauche */}
+            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-zinc-950/85 text-white backdrop-blur-xs shadow-xs">
+                0 km Neuf
               </span>
               {vehicle.is_exclusive && (
-                <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-[#f6b704] text-zinc-950">
-                  VIP
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#f6b704] text-zinc-950 shadow-xs">
+                  Privilège
                 </span>
               )}
             </div>
           </Link>
 
-          {/* 2. DÉTAILS TEXTUELS DU VÉHICULE (Style Image 3) */}
-          <div className="p-4 sm:p-4.5">
-            {/* Titre discret : Marque Modèle Année (ex: Chery Tiggo 8pro 2023) */}
+          {/* 2. DÉTAILS TEXTUELS DU VÉHICULE */}
+          <div className="p-4 sm:p-5">
+            {/* Titre : Marque Modèle Année */}
             <Link to={`/vehicule/${vehicle.id}`}>
-              <h3 className="text-xs sm:text-[13px] font-medium text-zinc-600 dark:text-zinc-400 truncate mb-1 hover:text-[#e10600] transition-colors">
+              <h3 className="font-heading text-sm sm:text-base font-bold text-zinc-900 truncate mb-1 hover:text-[#e10600] transition-colors leading-snug">
                 {vehicle.brand} {vehicle.model} {vehicle.year || ''}
               </h3>
             </Link>
 
-            {/* Ligne Prix en bleu vif + Boutons Partage & Favori (Style Image 3) */}
+            {/* Ligne Prix & Actions Favoris */}
             <div className="flex items-center justify-between mb-3">
-              <span className="font-heading font-extrabold text-base sm:text-lg text-[#1565C0] dark:text-[#42a5f5] tracking-tight">
+              <span className="font-heading font-black text-lg sm:text-xl text-zinc-950 tracking-tight">
                 {priceText}
               </span>
-              <div className="flex items-center gap-2 text-zinc-400">
+              <div className="flex items-center gap-1.5 text-zinc-400">
                 <button
                   type="button"
                   onClick={(e) => handleShare(vehicle, e)}
                   title="Partager cette offre"
-                  className="p-1 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                  className="p-1 rounded-full hover:bg-zinc-100 hover:text-zinc-700 transition-colors cursor-pointer"
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-3.5 h-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={(e) => toggleFavorite(vehicle.id, e)}
                   title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                  className={`p-1 transition-colors cursor-pointer ${
+                  className={`p-1 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer ${
                     isFav ? 'text-red-500 fill-red-500' : 'hover:text-red-500'
                   }`}
                 >
-                  <Heart className={`w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
+                  <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
                 </button>
               </div>
             </div>
 
-            {/* Ligne Spécifications techniques (Style Image 3 : Boîte | Carburant | 0 Km) */}
-            <div className="flex items-center gap-2 py-2 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] text-zinc-500 dark:text-zinc-400 font-normal">
+            {/* Spécifications techniques minimalistes */}
+            <div className="flex items-center justify-between py-2 border-t border-zinc-100 text-[11px] text-zinc-500">
               <div className="flex items-center gap-1 truncate">
                 <Gauge className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                 <span className="truncate">{vehicle.transmission || 'Automatique'}</span>
               </div>
-              <span className="text-zinc-300 dark:text-zinc-700">|</span>
+              <span className="text-zinc-300">•</span>
               <div className="flex items-center gap-1 truncate">
                 <Fuel className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                 <span className="truncate">{vehicle.fuel || 'Essence'}</span>
               </div>
-              <span className="text-zinc-300 dark:text-zinc-700">|</span>
-              <div className="flex items-center gap-1 shrink-0">
-                <Clock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                <span>0 Km</span>
-              </div>
-            </div>
-
-            {/* Ligne de badges de confiance verts (Style Image 3 : Certifiée • Inspectée • Garantie) */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-zinc-100 dark:border-zinc-800/80 text-[10px] sm:text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
-              <div className="flex items-center gap-1">
+              <span className="text-zinc-300">•</span>
+              <div className="flex items-center gap-1 shrink-0 font-medium text-emerald-700">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Certifiée</span>
-              </div>
-              <span className="text-zinc-300 dark:text-zinc-700">-</span>
-              <div className="flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Inspectée</span>
-              </div>
-              <span className="text-zinc-300 dark:text-zinc-700">-</span>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Garantie</span>
+                <span>Garantie 0 km</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3. Bouton WhatsApp direct au bas de la carte pour conversion immédiate */}
-        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/60 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+        {/* 3. Boutons d'action : Fiche technique + WhatsApp */}
+        <div className="px-4 pb-4 pt-1 flex items-center gap-2">
           <Link
             to={`/vehicule/${vehicle.id}`}
-            className="flex-1 py-2 text-center text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors"
+            className="flex-1 py-2 rounded-xl border border-zinc-200 text-center text-xs font-semibold text-zinc-700 hover:text-black hover:border-zinc-300 hover:bg-zinc-50 transition-all"
           >
             Fiche technique
           </Link>
@@ -281,7 +258,7 @@ export const OffersPage: React.FC = () => {
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-2 px-3 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+            className="flex-1 py-2 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
           >
             <WhatsAppIcon className="w-3.5 h-3.5" />
             <span>WhatsApp</span>

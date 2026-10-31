@@ -71,6 +71,15 @@ import {
   DEFAULT_EXCLUSIVE_BANNER,
   subscribeToExclusiveBanner,
 } from '../../lib/bannerStorage';
+import {
+  getTestimonials,
+  saveTestimonials,
+  addOrUpdateTestimonial,
+  deleteTestimonial,
+  resetTestimonialsToDefault,
+  subscribeToTestimonials,
+  TestimonialItem,
+} from '../../lib/testimonialsStorage';
 
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
@@ -107,7 +116,7 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) => {
-  const [activeTab, setActiveTab] = useState<'vehicles' | 'brands' | 'news' | 'leads' | 'newsletter' | 'banner' | 'hero'>('vehicles');
+  const [activeTab, setActiveTab] = useState<'vehicles' | 'brands' | 'news' | 'leads' | 'newsletter' | 'banner' | 'hero' | 'testimonials'>('vehicles');
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
   const [session, setSession] = useState<any>(null);
@@ -120,6 +129,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => getHeroSlides());
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isAddingSlide, setIsAddingSlide] = useState(false);
+
+  // Testimonials state
+  const [testimonialsList, setTestimonialsList] = useState<TestimonialItem[]>(() => getTestimonials());
+  const [editingTestimonial, setEditingTestimonial] = useState<TestimonialItem | null>(null);
+  const [isAddingTestimonial, setIsAddingTestimonial] = useState(false);
 
   // Exclusive WhatsApp Banner configuration state
   const [bannerConfig, setBannerConfig] = useState<ExclusiveBannerConfig>(() => getExclusiveBannerConfig());
@@ -152,6 +166,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   const [isSavingArticle, setIsSavingArticle] = useState(false);
   const [uploadingArticleImage, setUploadingArticleImage] = useState(false);
   const [deleteConfirmArticleId, setDeleteConfirmArticleId] = useState<string | null>(null);
+  const [newsTabFilter, setNewsTabFilter] = useState<'all' | 'published' | 'draft'>('all');
 
   // Leads state
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -207,6 +222,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   // Listen for banner updates
   useEffect(() => {
     const unsub = subscribeToExclusiveBanner((cfg) => setBannerConfig(cfg));
+    return unsub;
+  }, []);
+
+  // Listen for testimonials updates
+  useEffect(() => {
+    const unsub = subscribeToTestimonials((items) => setTestimonialsList(items));
     return unsub;
   }, []);
 
@@ -696,6 +717,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
     loadNews();
   };
 
+  const handleToggleArticleVisibility = async (article: NewsArticle) => {
+    const nextState = !article.is_published;
+    const res = await saveNewsRecord({
+      ...article,
+      is_published: nextState,
+    });
+    if (res.success) {
+      showNotification(
+        nextState
+          ? `Article "${article.title}" affiché sur le site`
+          : `Article "${article.title}" masqué du site`
+      );
+      loadNews();
+    } else {
+      showNotification(`Erreur : ${res.error}`, 'error');
+    }
+  };
+
+  const handleToggleArticleFeatured = async (article: NewsArticle) => {
+    const nextFeatured = !article.is_featured;
+    const res = await saveNewsRecord({
+      ...article,
+      is_featured: nextFeatured,
+    });
+    if (res.success) {
+      showNotification(
+        nextFeatured
+          ? `Article "${article.title}" mis à la une`
+          : `Article "${article.title}" retiré de la une`
+      );
+      loadNews();
+    } else {
+      showNotification(`Erreur : ${res.error}`, 'error');
+    }
+  };
+
   const handleArticleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -979,7 +1036,54 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
               <Layers className="w-4 h-4" />
               <span>Diaporama Hero ({heroSlides.length})</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('testimonials')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
+                activeTab === 'testimonials'
+                  ? 'bg-[#E10600] text-white shadow-sm'
+                  : 'text-[#8A8A8A] hover:text-white hover:bg-[#141414]'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Témoignages ({testimonialsList.length})</span>
+            </button>
           </div>
+
+          {activeTab === 'testimonials' && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const defaults = resetTestimonialsToDefault();
+                  setTestimonialsList(defaults);
+                  showNotification('Témoignages restaurés par défaut');
+                }}
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#222222] hover:bg-[#333333] text-zinc-300 text-xs font-semibold rounded-md border border-[#333333] cursor-pointer"
+              >
+                <span>Restaurer par défaut</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingTestimonial({
+                    id: 'test-' + Date.now(),
+                    name: '',
+                    date: 'Récemment',
+                    comment: '',
+                    image: '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg',
+                    rating: 5,
+                    avatarText: 'CL',
+                  });
+                  setIsAddingTestimonial(true);
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#E10600] hover:bg-[#B00500] text-white text-xs uppercase tracking-wider font-bold rounded-md transition-colors cursor-pointer shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Nouveau Témoignage</span>
+              </button>
+            </div>
+          )}
 
           {activeTab === 'hero' && (
             <div className="flex items-center gap-2">
@@ -1342,18 +1446,85 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
         {/* Tab 3: News Management */}
         {activeTab === 'news' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-white">Actualités & Événements</h2>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>Actualités & Événements</span>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
+                    {newsList.length}
+                  </span>
+                </h2>
                 <p className="text-xs text-[#8A8A8A]">
-                  Gestion des articles, nouveaux arrivages 0 km et offres du parc automobile.
+                  Activez ou masquez les actualités qui apparaissent sur la page d'accueil et la page Actualités.
                 </p>
               </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingArticle({
+                      title: '',
+                      slug: '',
+                      category: 'Nouveautés 0 km',
+                      excerpt: '',
+                      content: '',
+                      cover_image: '/assets/cars/hero_dealership_car_1793116464643.jpg',
+                      published_at: new Date().toISOString().split('T')[0],
+                      is_published: true,
+                      is_featured: false,
+                      read_time: '3 min',
+                      author: 'Équipe IPM Motors',
+                    })
+                  }
+                  className="px-3.5 py-2 bg-[#E10600] hover:bg-[#b00500] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Rédiger un article</span>
+                </button>
+                <button
+                  onClick={loadNews}
+                  className="text-xs text-[#8A8A8A] hover:text-white px-2 py-1 rounded transition-colors cursor-pointer"
+                >
+                  Actualiser
+                </button>
+              </div>
+            </div>
+
+            {/* Filtres d'affichage des actualités (Toutes / Publiées / Masquées) */}
+            <div className="flex items-center gap-2 border-b border-[#2A2A2A] pb-3 text-xs">
               <button
-                onClick={loadNews}
-                className="text-xs text-[#E10600] hover:underline cursor-pointer"
+                type="button"
+                onClick={() => setNewsTabFilter('all')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                  newsTabFilter === 'all'
+                    ? 'bg-zinc-800 text-white'
+                    : 'text-[#8A8A8A] hover:text-white'
+                }`}
               >
-                Actualiser
+                Toutes ({newsList.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewsTabFilter('published')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                  newsTabFilter === 'published'
+                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                    : 'text-[#8A8A8A] hover:text-white'
+                }`}
+              >
+                Visibles sur le site ({newsList.filter((n) => n.is_published).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewsTabFilter('draft')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                  newsTabFilter === 'draft'
+                    ? 'bg-red-950 text-red-400 border border-red-800'
+                    : 'text-[#8A8A8A] hover:text-white'
+                }`}
+              >
+                Masquées / Brouillons ({newsList.filter((n) => !n.is_published).length})
               </button>
             </div>
 
@@ -1365,11 +1536,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {newsList.map((article) => (
+                {newsList
+                  .filter((article) => {
+                    if (newsTabFilter === 'published') return article.is_published;
+                    if (newsTabFilter === 'draft') return !article.is_published;
+                    return true;
+                  })
+                  .map((article) => (
                   <div
                     key={article.id}
-                    className={`bg-[#141414] rounded-xl border flex flex-col justify-between overflow-hidden transition-colors ${
-                      article.is_published ? 'border-[#2A2A2A]' : 'border-red-950/60 opacity-60'
+                    className={`bg-[#141414] rounded-xl border flex flex-col justify-between overflow-hidden transition-all ${
+                      article.is_published ? 'border-[#2A2A2A]' : 'border-red-900/60 opacity-75'
                     }`}
                   >
                     <div>
@@ -1389,45 +1566,94 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                             {article.category}
                           </span>
                           {article.is_featured && (
-                            <span className="text-[10px] uppercase font-bold text-white bg-[#E10600] px-2 py-0.5 rounded shadow">
+                            <span className="text-[10px] uppercase font-bold text-white bg-[#E10600] px-2 py-0.5 rounded shadow flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-white" />
                               À la une
                             </span>
                           )}
+                        </div>
+
+                        {/* Statut d'affichage sur le site */}
+                        <div className="absolute top-2 right-2">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleArticleVisibility(article)}
+                            className={`px-2 py-0.5 text-[10px] font-bold rounded-full border cursor-pointer transition-all ${
+                              article.is_published
+                                ? 'bg-emerald-950/90 text-emerald-400 border-emerald-700 hover:bg-emerald-900'
+                                : 'bg-red-950/90 text-red-400 border-red-800 hover:bg-red-900'
+                            }`}
+                            title="Cliquer pour basculer la visibilité sur le site public"
+                          >
+                            {article.is_published ? '● Visible sur le site' : '○ Masqué du site'}
+                          </button>
                         </div>
                       </div>
 
                       <div className="p-4 space-y-2">
                         <div className="flex items-center justify-between text-[11px] text-[#8A8A8A]">
                           <span>{article.published_at}</span>
-                          <span className={article.is_published ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
-                            {article.is_published ? 'Publié' : 'Brouillon'}
+                          <span className="text-[10px] font-mono text-zinc-500">
+                            {article.read_time || '3 min'}
                           </span>
                         </div>
-                        <h4 className="text-base font-bold text-white line-clamp-2">
+                        <h4 className="text-base font-bold text-white line-clamp-2 leading-snug">
                           {article.title}
                         </h4>
-                        <p className="text-xs text-[#8A8A8A] line-clamp-2">
+                        <p className="text-xs text-[#8A8A8A] line-clamp-2 leading-relaxed">
                           {article.excerpt}
                         </p>
                       </div>
                     </div>
 
-                    <div className="p-4 bg-[#0A0A0A] border-t border-[#2A2A2A] flex items-center justify-between">
-                      <button
-                        onClick={() => setEditingArticle(article)}
-                        className="text-xs text-[#8A8A8A] hover:text-white flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>Modifier</span>
-                      </button>
+                    <div className="p-3 bg-[#0A0A0A] border-t border-[#2A2A2A] flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1">
+                        {/* Toggle Visibilité */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleArticleVisibility(article)}
+                          className={`p-1.5 rounded transition-colors cursor-pointer ${
+                            article.is_published
+                              ? 'text-emerald-400 hover:bg-emerald-950/50'
+                              : 'text-zinc-500 hover:text-white hover:bg-white/5'
+                          }`}
+                          title={article.is_published ? 'Masquer du site public' : 'Rendre visible sur le site'}
+                        >
+                          {article.is_published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 text-red-400" />}
+                        </button>
 
-                      <button
-                        onClick={() => setDeleteConfirmArticleId(article.id)}
-                        className="text-xs text-red-400 hover:text-red-300 p-1 cursor-pointer"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                        {/* Toggle À la une */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleArticleFeatured(article)}
+                          className={`p-1.5 rounded transition-colors cursor-pointer ${
+                            article.is_featured
+                              ? 'text-amber-400 hover:bg-amber-950/50'
+                              : 'text-zinc-600 hover:text-amber-400 hover:bg-white/5'
+                          }`}
+                          title={article.is_featured ? 'Retirer de la une' : 'Mettre en avant à la une'}
+                        >
+                          <Star className={`w-4 h-4 ${article.is_featured ? 'fill-amber-400' : ''}`} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setEditingArticle(article)}
+                          className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#333333] text-white text-xs font-semibold rounded flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>Modifier</span>
+                        </button>
+
+                        <button
+                          onClick={() => setDeleteConfirmArticleId(article.id)}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-950/40 rounded transition-colors cursor-pointer"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1938,6 +2164,113 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 8: Testimonials Manager */}
+        {activeTab === 'testimonials' && (
+          <div className="space-y-6">
+            <div className="bg-[#141414] border border-[#2A2A2A] rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-emerald-400" />
+                  <span>Gestion des Avis & Témoignages Clients</span>
+                </h3>
+                <p className="text-xs text-[#8A8A8A] mt-1">
+                  Personnalisez la section « Clients heureux, nous aussi ! » de la page d'accueil : photos des clients, avis, notations et dates.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingTestimonial({
+                    id: 'test-' + Date.now(),
+                    name: '',
+                    date: 'Récemment',
+                    comment: '',
+                    image: '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg',
+                    avatarText: 'CL',
+                    rating: 5,
+                  });
+                  setIsAddingTestimonial(true);
+                }}
+                className="px-4 py-2 bg-[#E10600] hover:bg-[#B00500] text-white text-xs uppercase tracking-wider font-bold rounded-md transition-colors cursor-pointer shadow-md flex items-center gap-2 shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Ajouter un avis</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {testimonialsList.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-[#141414] border border-[#2A2A2A] rounded-2xl overflow-hidden flex flex-col justify-between hover:border-zinc-700 transition-colors shadow-lg"
+                >
+                  <div>
+                    {/* Photo du client */}
+                    <div className="relative aspect-[16/10] bg-black overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                        }}
+                      />
+                      <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-semibold text-amber-400 flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span>{item.rating || 5}.0</span>
+                      </div>
+                    </div>
+
+                    <div className="p-5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-heading font-bold text-white text-base">
+                          {item.name}
+                        </h4>
+                        <span className="text-[11px] text-[#8A8A8A] font-mono">
+                          {item.date}
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-300 font-light leading-relaxed line-clamp-3">
+                        « {item.comment} »
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#0e0e11] border-t border-[#2A2A2A] flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingTestimonial({ ...item });
+                        setIsAddingTestimonial(false);
+                      }}
+                      className="px-3 py-1.5 rounded bg-[#222222] hover:bg-[#333333] text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer border border-[#333333]"
+                    >
+                      <Edit className="w-3 h-3 text-blue-400" />
+                      <span>Modifier</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (testimonialsList.length <= 1) {
+                          showNotification('Il doit rester au moins un avis client', 'error');
+                          return;
+                        }
+                        deleteTestimonial(item.id);
+                        setTestimonialsList((prev) => prev.filter((t) => t.id !== item.id));
+                        showNotification('Témoignage supprimé avec succès');
+                      }}
+                      className="p-1.5 rounded bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-800/40 cursor-pointer"
+                      title="Supprimer ce témoignage"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -3099,6 +3432,201 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                   className="px-6 py-2.5 bg-[#E10600] hover:bg-[#B00500] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-lg shadow-[#E10600]/25"
                 >
                   Enregistrer le slide
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Testimonial Modal */}
+      {editingTestimonial && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-[#2A2A2A]">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-emerald-400" />
+                  <span>{isAddingTestimonial ? 'Nouveau Témoignage Client' : 'Modifier le Témoignage'}</span>
+                </h3>
+                <p className="text-xs text-[#8A8A8A] mt-0.5">
+                  Mise à jour instantanée sur la page d'accueil du site.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingTestimonial(null);
+                  setIsAddingTestimonial(false);
+                }}
+                className="text-[#8A8A8A] hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!editingTestimonial.name.trim() || !editingTestimonial.comment.trim()) {
+                  showNotification('Veuillez renseigner le nom et le commentaire', 'error');
+                  return;
+                }
+                addOrUpdateTestimonial(editingTestimonial);
+                setEditingTestimonial(null);
+                setIsAddingTestimonial(false);
+                showNotification('Témoignage enregistré avec succès');
+              }}
+              className="space-y-4"
+            >
+              {/* Photo du client avec prévisualisation et upload direct */}
+              <div className="space-y-2">
+                <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold">
+                  Photo du client *
+                </label>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden bg-black shrink-0 border border-[#2A2A2A]">
+                    <img
+                      src={editingTestimonial.image}
+                      alt="Aperçu client"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 w-full space-y-2">
+                    <input
+                      type="text"
+                      required
+                      value={editingTestimonial.image}
+                      onChange={(e) =>
+                        setEditingTestimonial({ ...editingTestimonial, image: e.target.value })
+                      }
+                      placeholder="URL de l'image (https://...)"
+                      className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-xs text-white focus:outline-none focus:border-[#E10600] font-mono"
+                    />
+                    <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#222222] hover:bg-[#333333] text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors border border-[#333333]">
+                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Uploader depuis votre appareil</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            const res = ev.target?.result as string;
+                            if (res) {
+                              setEditingTestimonial((prev) => (prev ? { ...prev, image: res } : null));
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Nom & Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                    Nom du client *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingTestimonial.name}
+                    onChange={(e) =>
+                      setEditingTestimonial({ ...editingTestimonial, name: e.target.value })
+                    }
+                    placeholder="Ex: Alain, Monsieur Idrissa, Mme Blédou"
+                    className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                    Date affichée
+                  </label>
+                  <input
+                    type="text"
+                    value={editingTestimonial.date}
+                    onChange={(e) =>
+                      setEditingTestimonial({ ...editingTestimonial, date: e.target.value })
+                    }
+                    placeholder="Ex: il y a 6 jours, il y a 2 semaines"
+                    className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                  />
+                </div>
+              </div>
+
+              {/* Étoiles */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                  Note d'évaluation (Étoiles)
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() =>
+                        setEditingTestimonial({ ...editingTestimonial, rating: star })
+                      }
+                      className="p-1 cursor-pointer"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          star <= (editingTestimonial.rating || 5)
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-zinc-600'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-xs text-zinc-400 ml-2 font-mono">
+                    {editingTestimonial.rating || 5} / 5 étoiles
+                  </span>
+                </div>
+              </div>
+
+              {/* Commentaire */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                  Avis / Commentaire du client *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={editingTestimonial.comment}
+                  onChange={(e) =>
+                    setEditingTestimonial({ ...editingTestimonial, comment: e.target.value })
+                  }
+                  placeholder="Ex: Le service client a traité ma demande avec un véritable professionnalisme..."
+                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2A2A2A]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingTestimonial(null);
+                    setIsAddingTestimonial(false);
+                  }}
+                  className="px-4 py-2.5 bg-[#222222] hover:bg-[#333333] text-white text-xs rounded-lg font-medium cursor-pointer"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#E10600] hover:bg-[#B00500] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-lg shadow-[#E10600]/25"
+                >
+                  Enregistrer l'avis
                 </button>
               </div>
             </form>

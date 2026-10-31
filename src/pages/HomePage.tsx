@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hero } from '../components/Hero';
 import { BodyTypeSilhouettes } from '../components/ui/BodyTypeSilhouettes';
 import { VehicleCard } from '../components/VehicleCard';
@@ -26,9 +26,71 @@ import {
   Navigation,
   Zap,
   Car,
-  ExternalLink
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { subscribeNewsletter } from '../lib/newsletterStorage';
+import clientServiceBannerImg from '../assets/images/client_service_banner_1793277931395.jpg';
+
+const parseDateBadge = (dateStr: string) => {
+  if (!dateStr) return { day: '4', month: 'Mai' };
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const mIdx = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10).toString();
+    return { day, month: months[mIdx] || 'Mai' };
+  }
+  const tokens = dateStr.trim().split(/\s+/);
+  if (tokens.length >= 2 && !isNaN(parseInt(tokens[0], 10))) {
+    return { day: tokens[0], month: tokens[1].slice(0, 4) };
+  }
+  return { day: '4', month: 'Mai' };
+};
+
+const SERVICES_DATA = [
+  {
+    id: 's1',
+    type: 'globe',
+    title: 'Véhicules 0 km en Stock',
+    description: 'Disponibilité immédiate | Sélection 100% neufs | Zéro kilomètre garanti | Enlèvement direct sans attente de fret',
+    link: '/modeles',
+    cta: 'Voir le catalogue'
+  },
+  {
+    id: 's2',
+    type: 'pen',
+    title: 'Commande Sur-Mesure',
+    description: 'Configuration usine | Teintes & finitions rares | Sellerie personnalisée | Suivi logistique direct',
+    link: '/contact',
+    cta: 'Configurer un modèle'
+  },
+  {
+    id: 's3',
+    type: 'code',
+    title: 'Parc Automobile Bonoumin',
+    description: 'Showroom climatisé | Essai privé sur rendez-vous | Parking sécurisé | Accueil personnalisé VIP',
+    link: '/a-propos',
+    cta: 'Visiter le parc'
+  },
+  {
+    id: 's4',
+    type: 'shield',
+    title: 'Garantie & Clés en Main',
+    description: 'Garantie constructeur 3 à 8 ans | Dédouanement certifié | Immatriculation CI | Remise officielle',
+    link: '/apres-vente',
+    cta: 'Nos engagements SAV'
+  },
+  {
+    id: 's5',
+    type: 'vip',
+    title: 'Solutions VIP & Leasing',
+    description: 'Accompagnement bancaire | Partenaires leasing CI | Démarches simplifiées | Livraison VIP à domicile',
+    link: '/contact',
+    cta: 'Contacter un conseiller'
+  }
+];
 
 export const HomePage: React.FC = () => {
   const { vehicles, brands, newsArticles } = useData();
@@ -38,12 +100,22 @@ export const HomePage: React.FC = () => {
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMsg, setNewsletterMsg] = useState('');
 
-  // News carousel slide state (2 articles per slide like Image 1)
+  // Services parallax carousel state (matching Image 4, défilement automatique fluide sans pause au survol)
+  const [serviceSlideIndex, setServiceSlideIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setServiceSlideIndex((prev) => (prev + 1) % SERVICES_DATA.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // News carousel slide state (3 articles sur PC, pagination 1 2 3 4 5)
   const [newsSlideIndex, setNewsSlideIndex] = useState(0);
   const publishedNews = newsArticles.filter(n => n.is_published);
-  const displayedNews = publishedNews.slice(newsSlideIndex * 2, newsSlideIndex * 2 + 2).length > 0 
-    ? publishedNews.slice(newsSlideIndex * 2, newsSlideIndex * 2 + 2)
-    : publishedNews.slice(0, 2);
+  const displayedNews = publishedNews.slice(newsSlideIndex * 3, newsSlideIndex * 3 + 3).length > 0 
+    ? publishedNews.slice(newsSlideIndex * 3, newsSlideIndex * 3 + 3)
+    : publishedNews.slice(0, 3);
 
   const featuredVehicles = vehicles.filter(v => v.is_available).slice(0, 6);
   const activeBrands = brands.filter(b => b.is_active).slice(0, 16);
@@ -162,131 +234,148 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. SERVICES (Fond Blanc pur, blocs carrés jaunes sans contour arrondi, pas d'effet survol) */}
-      <section className="py-12 sm:py-16 bg-white dark:bg-zinc-900 text-zinc-950 w-full transition-colors border-t border-[var(--border)]">
-        <div className="max-w-[1500px] mx-auto px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36">
-          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-1">
-              Accompagnement Sur-Mesure
-            </span>
-            <h2 className="font-heading font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight text-neutral-950 dark:text-white">
-              Nos Services
+      {/* 6. SERVICES (EXACT DESIGN IMAGE 4 : TITRE ROUGE AVEC SOULIGNEMENT JAUNE, BLOCS DORÉS #f59e0b, ICÔNES BLANCHES & CARROUSEL FLUIDE) */}
+      <section className="py-14 sm:py-20 bg-white dark:bg-[#0c0c0e] text-zinc-950 w-full transition-colors border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-[1500px] mx-auto px-6 sm:px-12 lg:px-20 xl:px-28">
+          {/* En-tête style Image 4 : "Nos expertises" rouge bordeaux avec barre dorée en-dessous */}
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#990000] dark:text-red-500 tracking-tight relative inline-block pb-3">
+              Nos expertises
+              <span className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-[#f59e0b] rounded-full" />
             </h2>
-            <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 mt-1.5 font-light">
-              Une expérience haut de gamme pensée pour chaque étape de votre acquisition automobile.
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-3 font-light leading-relaxed">
+              Accompagnement Sur-Mesure — Une expérience haut de gamme pensée pour chaque étape de votre acquisition automobile.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {/* Bloc 1 */}
-            <div className="p-5 sm:p-6 rounded-none bg-[#FFDE00] text-neutral-950 flex flex-col justify-between border-0 shadow-none">
-              <div>
-                <div className="w-7 h-7 flex items-center justify-center mb-3 text-neutral-950">
-                  <Store className="w-5 h-5 text-neutral-950" />
-                </div>
-                <h3 className="font-heading font-bold text-base sm:text-lg mb-1.5 text-neutral-950">
-                  Véhicules en Stock
-                </h3>
-                <p className="text-xs text-neutral-900 leading-relaxed font-normal">
-                  Parc de véhicules 100% neufs 0 km prêts pour enlèvement immédiat sans attente de fret.
-                </p>
-              </div>
-              <div className="mt-5 pt-3 border-t border-neutral-950/20">
-                <Link
-                  to="/modeles"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-950 hover:underline"
-                >
-                  <span>Consulter le stock</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+          {/* Carrousel 3 cartes visibles avec boutons fléchés circulaires gauche/droite comme Image 4 */}
+          <div className="relative">
+            {/* Bouton Précédent */}
+            <button
+              type="button"
+              onClick={() =>
+                setServiceSlideIndex((prev) => (prev <= 0 ? SERVICES_DATA.length - 1 : prev - 1))
+              }
+              aria-label="Service précédent"
+              className="absolute -left-3 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-200/90 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-md transition-all cursor-pointer"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Bouton Suivant */}
+            <button
+              type="button"
+              onClick={() =>
+                setServiceSlideIndex((prev) => (prev + 1) % SERVICES_DATA.length)
+              }
+              aria-label="Service suivant"
+              className="absolute -right-3 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-200/90 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-md transition-all cursor-pointer"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* Grille de 3 blocs dorés #f59e0b affichés simultanément sur PC, 1 sur mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-6">
+              {[0, 1, 2].map((offset) => {
+                const itemIndex = (serviceSlideIndex + offset) % SERVICES_DATA.length;
+                const service = SERVICES_DATA[itemIndex];
+
+                return (
+                  <div
+                    key={`${service.id}-${offset}`}
+                    className="rounded-3xl bg-[#f59e0b] text-white p-8 sm:p-10 flex flex-col justify-between items-center text-center shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 min-h-[380px] sm:min-h-[420px]"
+                  >
+                    <div className="flex flex-col items-center w-full">
+                      {/* Icônes blanches pures style Image 4 */}
+                      <div className="w-18 h-18 sm:w-20 sm:h-20 mb-6 flex items-center justify-center text-white">
+                        {service.type === 'globe' && (
+                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                          </svg>
+                        )}
+                        {service.type === 'pen' && (
+                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m12 19 7-7 3 3-7 7-3-3z" />
+                            <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                            <path d="m2 2 7.586 7.586" />
+                            <circle cx="11" cy="11" r="2" />
+                          </svg>
+                        )}
+                        {service.type === 'code' && (
+                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        )}
+                        {service.type === 'shield' && (
+                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <polyline points="9 12 11 14 15 10" />
+                          </svg>
+                        )}
+                        {service.type === 'vip' && (
+                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                        )}
+                      </div>
+
+                      {/* Titre blanc centré */}
+                      <h3 className="font-heading font-bold text-xl sm:text-2xl text-white mb-4 leading-snug">
+                        {service.title}
+                      </h3>
+
+                      {/* Description séparée par des | style Image 4 */}
+                      <p className="text-white/95 text-xs sm:text-sm font-normal leading-relaxed max-w-xs">
+                        {service.description}
+                      </p>
+                    </div>
+
+                    {/* Lien d'action blanc épuré */}
+                    <div className="mt-8 pt-4 border-t border-white/20 w-full">
+                      <Link
+                        to={service.link}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white hover:text-white/80 transition-colors"
+                      >
+                        <span>{service.cta}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Bloc 2 */}
-            <div className="p-5 sm:p-6 rounded-none bg-[#FFDE00] text-neutral-950 flex flex-col justify-between border-0 shadow-none">
-              <div>
-                <div className="w-7 h-7 flex items-center justify-center mb-3 text-neutral-950">
-                  <Sliders className="w-5 h-5 text-neutral-950" />
-                </div>
-                <h3 className="font-heading font-bold text-base sm:text-lg mb-1.5 text-neutral-950">
-                  Commande Sur-Mesure
-                </h3>
-                <p className="text-xs text-neutral-900 leading-relaxed font-normal">
-                  Configuration personnalisée d’usine : coloris exclusifs, selleries sur-mesure et options rares.
-                </p>
-              </div>
-              <div className="mt-5 pt-3 border-t border-neutral-950/20">
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-950 hover:underline"
-                >
-                  <span>Configurer un véhicule</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Bloc 3 */}
-            <div className="p-5 sm:p-6 rounded-none bg-[#FFDE00] text-neutral-950 flex flex-col justify-between border-0 shadow-none">
-              <div>
-                <div className="w-7 h-7 flex items-center justify-center mb-3 text-neutral-950">
-                  <Compass className="w-5 h-5 text-neutral-950" />
-                </div>
-                <h3 className="font-heading font-bold text-base sm:text-lg mb-1.5 text-neutral-950">
-                  Parc Automobile Riviera
-                </h3>
-                <p className="text-xs text-neutral-900 leading-relaxed font-normal">
-                  Espace d’exposition climatisé à Bonoumin pour admirer et essayer votre futur véhicule en toute sérénité.
-                </p>
-              </div>
-              <div className="mt-5 pt-3 border-t border-neutral-950/20">
-                <Link
-                  to="/a-propos"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-950 hover:underline"
-                >
-                  <span>Visiter le parc automobile</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Bloc 4 */}
-            <div className="p-5 sm:p-6 rounded-none bg-[#FFDE00] text-neutral-950 flex flex-col justify-between border-0 shadow-none">
-              <div>
-                <div className="w-7 h-7 flex items-center justify-center mb-3 text-neutral-950">
-                  <Sparkles className="w-5 h-5 text-neutral-950" />
-                </div>
-                <h3 className="font-heading font-bold text-base sm:text-lg mb-1.5 text-neutral-950">
-                  VIP & Financement
-                </h3>
-                <p className="text-xs text-neutral-900 leading-relaxed font-normal">
-                  Solutions bancaires et leasing avec nos partenaires ivoiriens, et livraison VIP à domicile.
-                </p>
-              </div>
-              <div className="mt-5 pt-3 border-t border-neutral-950/20">
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-950 hover:underline"
-                >
-                  <span>Contacter un conseiller VIP</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+            {/* Puces de pagination carrousel */}
+            <div className="flex items-center justify-center gap-2 mt-8">
+              {SERVICES_DATA.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setServiceSlideIndex(idx)}
+                  aria-label={`Service ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all cursor-pointer ${
+                    serviceSlideIndex === idx ? 'w-8 bg-[#f59e0b]' : 'w-2 bg-zinc-300 dark:bg-zinc-700'
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* BANNIÈRE ACCUEIL PRIVILÈGE & CONSEILS PERSONNALISÉS (DÉPLACÉE AU-DESSUS DE SERVICE APRÈS-VENTE) */}
-      <section className="py-6 sm:py-8 px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36 max-w-[1550px] mx-auto w-full">
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[var(--border)] min-h-[220px] sm:min-h-[260px] flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 sm:p-10 lg:p-12 gap-6">
+      {/* BANNIÈRE ACCUEIL PRIVILÈGE & CONSEILS PERSONNALISÉS (IMAGE ORIGINALE PURE SANS TEXTE INTÉGRÉ, SANS BUG) */}
+      <section className="py-6 sm:py-8 px-6 sm:px-12 lg:px-20 xl:px-28 max-w-[1550px] mx-auto w-full">
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl min-h-[220px] sm:min-h-[260px] flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 sm:p-10 lg:p-12 gap-6 bg-zinc-950">
           <img
-            src="/public/assets/aistudio/Capture_d_e_cran_2026-10-29_a__18.34.08_75055a70.png"
+            src={clientServiceBannerImg}
             alt="Accueil Privilège et Conseils Personnalisés IPM Motors"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
           {/* Dégradé noir profond pour faire ressortir le texte parfaitement */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/35" />
 
           <div className="relative z-10 max-w-xl">
             <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-2">
@@ -312,18 +401,18 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 7. SERVICE APRÈS-VENTE (Fond Blanc pur, espacement réduit & design minimaliste) */}
-      <section className="py-10 sm:py-14 px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36 bg-white dark:bg-[#121215] text-[var(--fg)] w-full border-t border-[var(--border)]">
+      {/* 7. SERVICE APRÈS-VENTE (Fond Blanc pur, espacement réduit & textes sombres nets) */}
+      <section className="py-12 sm:py-16 px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36 bg-white text-zinc-950 w-full border-t border-zinc-200">
         <div className="max-w-[1500px] mx-auto">
           {/* En-tête centré */}
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-            <span className="eyebrow block mb-1.5">
+            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-1.5">
               Tranquillité d’Esprit
             </span>
-            <h2 className="font-heading font-light text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight mb-2">
+            <h2 className="font-heading font-light text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight mb-2 text-zinc-950">
               Service <span className="font-semibold text-[#e10600]">Après-Vente</span>
             </h2>
-            <p className="text-xs sm:text-sm text-[#6b6b72] font-light leading-relaxed max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-zinc-600 font-light leading-relaxed max-w-2xl mx-auto">
               Un accompagnement durable pour rouler en toute confiance partout en Côte d’Ivoire.
             </p>
           </div>
@@ -472,12 +561,17 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. CARTE PARC AUTOMOBILE IPM MOTORS & RIDE-HAILING LOGOS */}
-      <section className="py-10 sm:py-14 px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36 max-w-[1550px] mx-auto w-full">
-        <div className="flex items-center justify-between mb-3.5">
-          <h2 className="font-heading font-semibold text-lg sm:text-xl text-[var(--fg)] tracking-tight">
-            Localisez notre Parc Automobile IPM Motors
-          </h2>
+      {/* 8. CARTE PARC AUTOMOBILE IPM MOTORS (SANS LOGOS NI BORDURES LOURDES, PLEINEMENT RESPONSIVE) */}
+      <section className="py-10 sm:py-14 px-6 sm:px-12 lg:px-20 xl:px-28 max-w-[1550px] mx-auto w-full">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-1">
+              Accès & Itinéraire
+            </span>
+            <h2 className="font-heading font-semibold text-lg sm:text-2xl text-[var(--fg)] tracking-tight">
+              Localisez notre Parc Automobile IPM Motors
+            </h2>
+          </div>
           <a
             href="https://www.google.com/maps/dir/?api=1&destination=Riviera+Bonoumin+Abidjan+Cote+d'Ivoire"
             target="_blank"
@@ -489,8 +583,8 @@ export const HomePage: React.FC = () => {
           </a>
         </div>
 
-        {/* Conteneur de la Carte panoramique */}
-        <div className="relative rounded-3xl overflow-hidden border border-[var(--border)] bg-zinc-900 shadow-xl aspect-[21/9] sm:aspect-[24/9] min-h-[260px] sm:min-h-[360px]">
+        {/* Conteneur de la Carte panoramique responsive */}
+        <div className="relative rounded-2xl overflow-hidden bg-zinc-900 shadow-md w-full h-[300px] sm:h-[400px]">
           {/* Iframe Carte Interactive Abidjan Riviera Bonoumin */}
           <iframe
             title="Localisation Parc Automobile IPM Motors - Cocody Riviera Bonoumin"
@@ -519,47 +613,8 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* NOUVELLE ZONE SOUS LA CARTE : IPM MOTORS EST DISPONIBLE SUR (YANGO, HEETCH, INDRIVE) */}
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 bg-white dark:bg-[#141417] rounded-2xl border border-[var(--border)] shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#e10600] animate-pulse" />
-            <span className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-              IPM MOTORS est disponible sur
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
-            {/* YANGO */}
-            <div className="h-10 px-4 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xs flex items-center justify-center hover:scale-105 transition-transform">
-              <img
-                src="/public/assets/aistudio/images__11__698c3a39.png"
-                alt="Yango Côte d'Ivoire"
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-
-            {/* inDrive */}
-            <div className="h-10 px-4 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xs flex items-center justify-center hover:scale-105 transition-transform">
-              <img
-                src="/public/assets/aistudio/indrive-vertical-logo-png_seeklogo-630596_7d30db92.png"
-                alt="inDrive Côte d'Ivoire"
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-
-            {/* HEETCH */}
-            <div className="h-10 px-4 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xs flex items-center justify-center hover:scale-105 transition-transform">
-              <img
-                src="/public/assets/aistudio/Logo-Horizontal-Red-02-1288x724-1_d8f34bd5.png"
-                alt="Heetch Côte d'Ivoire"
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 9. ACTUALITÉS (DESIGN MODERNISÉ SUR PC AVEC DÉFILEMENT ET ROTATION DES INFOS) */}
-        <div className="mt-12 sm:mt-16 mb-8">
+        {/* 9. ACTUALITÉS (DESIGN FIDÈLE À L'IMAGE 2 : BADGE DATE ORANGE EN BAS À DROITE DE LA PHOTO, TITRE VERT SOMBRE ET ROTATION FLUIDE) */}
+        <div className="mt-14 sm:mt-18 mb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>
               <div className="inline-flex items-center gap-2 mb-1.5">
@@ -574,37 +629,6 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Boutons précédents / suivants pour faire tourner les blocs d'actualités */}
-              {publishedNews.length > 2 && (
-                <div className="flex items-center gap-1.5 bg-[var(--surface)] p-1 rounded-full border border-[var(--border)]">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const maxSlide = Math.ceil(publishedNews.length / 2) - 1;
-                      setNewsSlideIndex((prev) => (prev <= 0 ? maxSlide : prev - 1));
-                    }}
-                    aria-label="Actualités précédentes"
-                    className="w-7 h-7 rounded-full bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 flex items-center justify-center hover:bg-[#e10600] hover:text-white transition-colors cursor-pointer shadow-xs"
-                  >
-                    <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                  </button>
-                  <span className="text-[11px] font-mono px-2 font-medium text-zinc-600 dark:text-zinc-400">
-                    {newsSlideIndex + 1} / {Math.ceil(publishedNews.length / 2)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const maxSlide = Math.ceil(publishedNews.length / 2) - 1;
-                      setNewsSlideIndex((prev) => (prev >= maxSlide ? 0 : prev + 1));
-                    }}
-                    aria-label="Actualités suivantes"
-                    className="w-7 h-7 rounded-full bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 flex items-center justify-center hover:bg-[#e10600] hover:text-white transition-colors cursor-pointer shadow-xs"
-                  >
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-
               <Link
                 to="/actualites"
                 className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-[#e10600] hover:text-[#c30500] group"
@@ -615,94 +639,109 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Grille des Actualités : Grands blocs panoramiques avec design haut de gamme sur PC */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6">
+          {/* Grille des Actualités : 3 blocs sur PC (minimalistes et compacts, fidèles à l'Image 2 & 3) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {displayedNews.map((article) => {
               const articleSlug = article.slug || article.id;
               const waArticleUrl = buildWhatsAppUrl(`Bonjour IPM Motors, je souhaite des renseignements suite à votre article : "${article.title}".`);
+              const { day, month } = parseDateBadge(article.published_at);
 
               return (
                 <article
                   key={article.id}
-                  className="group relative aspect-[16/11] sm:aspect-[16/9] rounded-3xl overflow-hidden bg-zinc-950 shadow-xl border border-zinc-200 dark:border-zinc-800 hover:border-[#e10600]/40 transition-all duration-500"
+                  className="group flex flex-col justify-between bg-white dark:bg-zinc-900/70 rounded-xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:shadow-md transition-all duration-300"
                 >
-                  {/* Image de fond plein cadre avec zoom au survol */}
-                  <img
-                    src={article.cover_image}
-                    alt={article.title}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                    onError={(e) => {
-                      e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
-                    }}
-                  />
+                  <div>
+                    {/* Zone Image avec Badge Date en bas à droite (Exact Image 2) */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-zinc-950 rounded-t-xl">
+                      <Link to={`/actualites/${articleSlug}`} className="block w-full h-full">
+                        <img
+                          src={article.cover_image}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+                          onError={(e) => {
+                            e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                          }}
+                        />
+                      </Link>
 
-                  {/* Dégradé sombre progressif multicouche pour un contraste parfait du texte sur PC */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent hidden sm:block" />
+                      {/* Badge Date en bas à droite (Chiffre orange + mois orange exact Image 2 & 3) */}
+                      <div className="absolute bottom-0 right-3 z-10 bg-white shadow-md rounded-t-md px-3 py-1 text-center min-w-[50px] border border-b-0 border-zinc-100">
+                        <span className="block text-lg sm:text-xl font-bold text-[#f39c12] leading-tight">
+                          {day}
+                        </span>
+                        <span className="block text-[10px] font-bold text-[#f39c12] uppercase tracking-wider">
+                          {month}
+                        </span>
+                      </div>
 
-                  {/* Header de la carte : Badges & date */}
-                  <div className="absolute top-4 sm:top-5 left-4 sm:left-6 right-4 sm:right-6 z-10 flex items-center justify-between">
-                    <span className="px-3.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wider uppercase bg-black/80 backdrop-blur-md text-white border border-white/20">
-                      {article.category}
-                    </span>
-                    {article.read_time && (
-                      <span className="px-3 py-1 rounded-full text-[10px] font-mono text-zinc-300 bg-black/60 backdrop-blur-md border border-white/10 hidden sm:inline-block">
-                        {article.read_time}
-                      </span>
-                    )}
+                      {/* Badge Catégorie discret en haut à gauche */}
+                      <div className="absolute top-2.5 left-2.5 z-10">
+                        <span className="px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-black/75 backdrop-blur-sm text-white">
+                          {article.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Titre vert sombre & extrait minimaliste */}
+                    <div className="p-4 pb-2.5">
+                      <Link to={`/actualites/${articleSlug}`}>
+                        <h3 className="font-heading font-bold text-base sm:text-lg text-[#064e3b] dark:text-emerald-400 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
+                          {article.title}
+                        </h3>
+                      </Link>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 font-light mt-1.5 line-clamp-2 leading-relaxed">
+                        {article.excerpt}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Contenu textuel et boutons en bas de la carte sur PC */}
-                  <div className="absolute bottom-5 sm:bottom-7 left-5 sm:left-7 right-5 sm:right-7 z-10">
-                    <h3 className="font-heading font-bold text-xl sm:text-2xl lg:text-3xl text-white mb-2 leading-snug drop-shadow-md group-hover:text-zinc-100 transition-colors">
-                      {article.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-zinc-200 line-clamp-2 max-w-xl font-light mb-5 drop-shadow">
-                      {article.excerpt}
-                    </p>
+                  {/* Actions au bas de la carte (Minimaliste) */}
+                  <div className="px-4 pb-3.5 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                    <Link
+                      to={`/actualites/${articleSlug}`}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#064e3b] dark:text-emerald-400 hover:underline"
+                    >
+                      <span>Lire l'article</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
 
-                    {/* Deux boutons au bas du bloc */}
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link
-                        to={`/actualites/${articleSlug}`}
-                        className="px-5 py-2.5 rounded-full bg-[#e10600] hover:bg-[#c30500] text-white text-xs font-semibold shadow-md transition-all hover:scale-102"
-                      >
-                        Lire l'article
-                      </Link>
-                      <a
-                        href={waArticleUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-5 py-2.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 text-xs font-semibold shadow-md transition-all hover:scale-102 inline-flex items-center gap-1.5"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                        <span>Échanger sur WhatsApp</span>
-                      </a>
-                    </div>
+                    <a
+                      href={waArticleUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-[#064e3b] dark:text-emerald-400 hover:bg-emerald-100 text-[11px] font-semibold transition-all inline-flex items-center gap-1 border border-emerald-200/60 dark:border-emerald-800/40"
+                    >
+                      <MessageCircle className="w-3 h-3 text-[#25D366]" />
+                      <span>WhatsApp</span>
+                    </a>
                   </div>
                 </article>
               );
             })}
           </div>
 
-          {/* Indicateur de défilement interactif pour naviguer dans les actualités */}
-          {publishedNews.length > 2 && (
-            <div className="flex items-center justify-center gap-2 pt-3">
-              {Array.from({ length: Math.ceil(publishedNews.length / 2) }).map((_, idx) => (
+          {/* Pagination chiffrée style Image 3 (1 2 3 4 5) : Chiffre actif #f39c12, inactifs #064e3b */}
+          <div className="flex items-center justify-center gap-5 sm:gap-7 pt-3 pb-2 select-none">
+            {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(publishedNews.length / 3))) }).map((_, idx) => {
+              const isActive = newsSlideIndex === idx;
+              return (
                 <button
-                  key={idx}
+                  key={idx + 1}
                   type="button"
                   onClick={() => setNewsSlideIndex(idx)}
-                  aria-label={`Page d'actualités ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                    newsSlideIndex === idx
-                      ? 'w-7 bg-[#e10600]'
-                      : 'w-2 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400'
+                  aria-label={`Aller à la page ${idx + 1}`}
+                  className={`text-2xl sm:text-3xl font-bold font-heading transition-all duration-200 cursor-pointer hover:scale-115 ${
+                    isActive
+                      ? 'text-[#f39c12]'
+                      : 'text-[#064e3b] dark:text-emerald-500 hover:text-[#f39c12]'
                   }`}
-                />
-              ))}
-            </div>
-          )}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 

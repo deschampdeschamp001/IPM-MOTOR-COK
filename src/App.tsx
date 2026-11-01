@@ -24,6 +24,7 @@ import { NewsPage } from './pages/NewsPage';
 import { NewsArticlePage } from './pages/NewsArticlePage';
 import { ContactPage } from './pages/ContactPage';
 import { AdminPage } from './pages/AdminPage';
+import { VehiclesHubPage } from './pages/VehiclesHubPage';
 
 function AppRouter() {
   const { pathname } = useRouter();
@@ -38,6 +39,8 @@ function AppRouter() {
 
   if (pathname === '/') {
     PageComponent = HomePage;
+  } else if (pathname === '/vehicules') {
+    PageComponent = VehiclesHubPage;
   } else if (pathname === '/modeles' || pathname === '/marques' || matchPath('/marques/:slug', pathname).matches) {
     PageComponent = ModelsPage;
   } else if (matchPath('/vehicule/:id', pathname).matches) {
@@ -46,21 +49,19 @@ function AppRouter() {
     PageComponent = OffersPage;
   } else if (pathname === '/apres-vente') {
     PageComponent = AfterSalesPage;
-  } else if (pathname === '/a-propos') {
-    PageComponent = AboutPage;
+  } else if (pathname === '/a-propos' || pathname === '/contact') {
+    PageComponent = ContactPage;
   } else if (pathname === '/actualites') {
     PageComponent = NewsPage;
   } else if (matchPath('/actualites/:slug', pathname).matches) {
     PageComponent = NewsArticlePage;
-  } else if (pathname === '/contact') {
-    PageComponent = ContactPage;
   } else {
     // Fallback to home
     PageComponent = HomePage;
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg)] text-[var(--fg)] transition-colors duration-200">
+    <div className="flex flex-col min-h-screen overflow-x-hidden bg-[var(--bg)] text-[var(--fg)] transition-colors duration-200">
       <Navbar />
       <main className="flex-1 pb-16 lg:pb-0">
         <PageComponent />

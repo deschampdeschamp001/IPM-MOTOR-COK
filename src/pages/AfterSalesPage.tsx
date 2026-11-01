@@ -17,6 +17,11 @@ import bmwXmWhiteCutout from '../assets/images/bmw_xm_white_cutout.png';
 import savDealImg from '../assets/images/ci_garantie_deal_1793449020315.jpg';
 import savWorkshopImg from '../assets/images/ci_workshop_tech_1793449044800.jpg';
 import savKeysImg from '../assets/images/ci_immat_handover_1793449069146.jpg';
+import {
+  getServicesSections,
+  subscribeToServicesSections,
+  ServiceSectionItem
+} from '../config/servicesConfig';
 
 interface FAQQuestion {
   id: string;
@@ -69,11 +74,21 @@ const FAQ_LIST: FAQQuestion[] = [
 
 export const AfterSalesPage: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(FAQ_LIST[0].id);
+  const [sections, setSections] = useState<ServiceSectionItem[]>(() => getServicesSections());
 
   useEffect(() => {
     document.title = 'Service Après-Vente & Garantie | IPM Motors Abidjan';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  useEffect(() => {
+    const unsub = subscribeToServicesSections((updated) => setSections(updated));
+    return unsub;
+  }, []);
+
+  const sec1 = sections.find((s) => s.id === 'garantie') || sections[0];
+  const sec2 = sections.find((s) => s.id === 'ateliers') || sections[1];
+  const sec3 = sections.find((s) => s.id === 'immatriculation') || sections[2];
 
   const toggleAccordion = (id: string) => {
     setExpandedId(prev => (prev === id ? null : id));
@@ -123,142 +138,155 @@ export const AfterSalesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. ENGAGEMENTS SAV & GARANTIE — 3 BLOCS AVEC IMAGES PROFESSIONNELLES DE CÔTE D'IVOIRE */}
-      <section className="py-12 sm:py-16 px-6 sm:px-12 lg:px-20 max-w-[1440px] mx-auto space-y-16 sm:space-y-24">
-        
-        {/* ENGAGEMENT 01 — Garantie Constructeur Officielle */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-14 items-center">
-          <div className="order-2 lg:order-1 space-y-4 sm:space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-[#e10600] text-[11px] font-bold tracking-wider uppercase">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Engagement 01</span>
-            </div>
-            <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
-              Garantie <span className="font-semibold text-[#e10600]">Constructeur Officielle</span>
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
-              Tous nos véhicules 0 km bénéficient de la protection constructeur intégrale. Nous assurons l’activation immédiate de votre carnet d’entretien officiel dès la livraison des clés à Cocody Abidjan.
-            </p>
-            <ul className="space-y-3 pt-2">
-              {[
-                'Couverture officielle de 3 à 8 ans selon la marque (jusqu’à 160 000 km pour batteries)',
-                'Prise en charge intégrale par les réseaux et concessionnaires agréés',
-                'Carnet d’entretien officiel tamponné et remis le jour de la livraison',
-                'Traçabilité certifiée 0 km sortie d’usine garantie par PV de conformité',
-              ].map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
-                  <CheckCircle2 className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="order-1 lg:order-2">
-            <div className="relative group overflow-hidden rounded-[36px_14px_36px_14px] shadow-lg border border-zinc-200 bg-zinc-100 aspect-[16/10]">
-              <img
-                src={savDealImg}
-                alt="Remise officielle de garantie constructeur à Abidjan"
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-5 right-5 text-white">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">Cocody Abidjan</span>
-                <p className="text-sm font-semibold text-white">Garantie constructeur & remise du carnet d’origine</p>
+      {/* 2. ENGAGEMENTS SAV & GARANTIE — 3 SECTIONS FULL-BLEED (BORD À BORD ÉCRAN, CONTENU CENTRÉ MAX 1100PX) */}
+      <div className="w-full space-y-0">
+        {/* ENGAGEMENT 01 — Garantie Constructeur Officielle (Full-Bleed Fond Blanc) */}
+        {sec1 && (
+          <section className="full-bleed bg-white text-zinc-950 py-14 sm:py-20 border-t border-zinc-100">
+            <div className="full-bleed__inner">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div className="order-2 md:order-1 space-y-4 sm:space-y-5">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-[#e10600] text-[11px] font-bold tracking-wider uppercase">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{sec1.badge || 'Engagement 01'}</span>
+                  </div>
+                  <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
+                    Garantie <span className="font-semibold text-[#e10600]">{sec1.titleHighlight || 'Constructeur Officielle'}</span>
+                  </h2>
+                  <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
+                    {sec1.subtitle}
+                  </p>
+                  <ul className="space-y-3 pt-2">
+                    {sec1.points.map((point, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
+                        <CheckCircle2 className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="order-1 md:order-2">
+                  <div className="relative group overflow-hidden rounded-2xl shadow-lg border border-zinc-200 bg-zinc-100 aspect-[16/10]">
+                    <img
+                      src={sec1.image || savDealImg}
+                      alt={sec1.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 right-5 text-white">
+                      <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">
+                        {sec1.locationBadge || 'Cocody Abidjan'}
+                      </span>
+                      <p className="text-sm font-semibold text-white">
+                        {sec1.caption || 'Garantie constructeur & remise du carnet d’origine'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
+        )}
 
-        {/* ENGAGEMENT 02 — Ateliers Certifiés & Pièces 100% OEM (Image on left, text on right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-14 items-center">
-          <div className="order-1">
-            <div className="relative group overflow-hidden rounded-[14px_36px_14px_36px] shadow-lg border border-zinc-200 bg-zinc-100 aspect-[16/10]">
-              <img
-                src={savWorkshopImg}
-                alt="Ateliers certifiés et pièces d'origine OEM à Abidjan"
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-5 right-5 text-white">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">Diagnostic Expert & Pièces OEM</span>
-                <p className="text-sm font-semibold text-white">Techniciens ivoiriens certifiés & valises de pointe</p>
+        {/* ENGAGEMENT 02 — Ateliers Certifiés & Pièces 100% OEM (Full-Bleed Fond #0f172a Slate Sombre) */}
+        {sec2 && (
+          <section className="full-bleed bg-[#0f172a] text-white py-14 sm:py-20 shadow-md">
+            <div className="full-bleed__inner">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div className="order-1">
+                  <div className="relative group overflow-hidden rounded-2xl shadow-xl border border-slate-700 bg-slate-800 aspect-[16/10]">
+                    <img
+                      src={sec2.image || savWorkshopImg}
+                      alt={sec2.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 right-5 text-white">
+                      <span className="text-[11px] uppercase tracking-wider font-bold text-cyan-400">
+                        {sec2.locationBadge || 'Diagnostic Expert & Pièces OEM'}
+                      </span>
+                      <p className="text-sm font-semibold text-white">
+                        {sec2.caption || 'Techniciens ivoiriens certifiés & valises de pointe'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="order-2 space-y-4 sm:space-y-5">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold tracking-wider uppercase">
+                    <Wrench className="w-3.5 h-3.5" />
+                    <span>{sec2.badge || 'Engagement 02'}</span>
+                  </div>
+                  <h2 className="font-heading font-light text-2xl sm:text-4xl text-white tracking-tight">
+                    Ateliers Certifiés & <span className="font-semibold text-blue-400">{sec2.titleHighlight || 'Pièces 100% OEM'}</span>
+                  </h2>
+                  <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
+                    {sec2.subtitle}
+                  </p>
+                  <ul className="space-y-3 pt-2">
+                    {sec2.points.map((point, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-200">
+                        <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="order-2 space-y-4 sm:space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#1a44b8] text-[11px] font-bold tracking-wider uppercase">
-              <Wrench className="w-3.5 h-3.5" />
-              <span>Engagement 02</span>
-            </div>
-            <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
-              Ateliers Certifiés & <span className="font-semibold text-[#1a44b8]">Pièces 100% OEM</span>
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
-              Pour prolonger la fiabilité et les performances de votre véhicule neuf, nous collaborons avec des centres techniques certifiés partenaires à Abidjan équipés des valises électroniques officielles.
-            </p>
-            <ul className="space-y-3 pt-2">
-              {[
-                'Centres techniques certifiés partenaires à Abidjan (Cocody, Marcory, Zone 4)',
-                'Valises électroniques de diagnostic multimarques de dernière génération',
-                'Pièces détachées et filtres 100% d’origine constructeur (OEM)',
-                'Techniciens formés aux normes tropicalisées et motorisations hybrides/électriques',
-              ].map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
-                  <CheckCircle2 className="w-4 h-4 text-[#1a44b8] shrink-0 mt-0.5" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+          </section>
+        )}
 
-        {/* ENGAGEMENT 03 — Immatriculation & Clés en Main (Représentation Côte d'Ivoire) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-14 items-center">
-          <div className="order-2 lg:order-1 space-y-4 sm:space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold tracking-wider uppercase">
-              <FileCheck2 className="w-3.5 h-3.5" />
-              <span>Engagement 03</span>
-            </div>
-            <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
-              Immatriculation & <span className="font-semibold text-emerald-600">Clés en Main</span>
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
-              Toutes les formalités administratives ivoiriennes sont prises en charge avec rigueur et transparence pour que vous preniez le volant l’esprit serein.
-            </p>
-            <ul className="space-y-3 pt-2">
-              {[
-                'Dédouanement complet et certifié auprès des douanes ivoiriennes',
-                'Délivrance de la carte grise officielle à votre nom (Quipux / DGTTC)',
-                'Fabrication et pose soignée des plaques d’immatriculation homologuées en Côte d’Ivoire',
-                'Nettoyage esthétique et remise des clés en main à notre showroom Bonoumin',
-              ].map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="order-1 lg:order-2">
-            <div className="relative group overflow-hidden rounded-[36px_14px_36px_14px] shadow-lg border border-zinc-200 bg-zinc-100 aspect-[16/10]">
-              <img
-                src={savKeysImg}
-                alt="Délivrance de la carte grise ivoirienne et pose des plaques à Abidjan"
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-5 right-5 text-white">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">Guichet Unique Automobile</span>
-                <p className="text-sm font-semibold text-white">Carte grise ivoirienne, plaques homologuées & clés remises en main propre</p>
+        {/* ENGAGEMENT 03 — Immatriculation & Clés en Main (Full-Bleed Fond Blanc Pur & Nouvelle Image CI) */}
+        {sec3 && (
+          <section className="full-bleed bg-zinc-50/80 text-zinc-950 py-14 sm:py-20 border-t border-b border-zinc-200">
+            <div className="full-bleed__inner">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div className="order-2 md:order-1 space-y-4 sm:space-y-5">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold tracking-wider uppercase">
+                    <FileCheck2 className="w-3.5 h-3.5" />
+                    <span>{sec3.badge || 'Engagement 03'}</span>
+                  </div>
+                  <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
+                    Immatriculation & <span className="font-semibold text-emerald-600">{sec3.titleHighlight || 'Clés en Main'}</span>
+                  </h2>
+                  <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
+                    {sec3.subtitle}
+                  </p>
+                  <ul className="space-y-3 pt-2">
+                    {sec3.points.map((point, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="order-1 md:order-2">
+                  <div className="relative group overflow-hidden rounded-2xl shadow-lg border border-zinc-200 bg-white aspect-[16/10] flex items-center justify-center p-2">
+                    <img
+                      src={sec3.image || '/public/assets/aistudio/E_change_de_cle_s_et_plaque_ivoirienne_e24c6ee3.png'}
+                      alt={sec3.title}
+                      loading="lazy"
+                      className="w-full h-full object-contain group-hover:scale-103 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none rounded-2xl" />
+                    <div className="absolute bottom-4 left-5 right-5 text-white">
+                      <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">
+                        {sec3.locationBadge || 'Guichet Unique Automobile'}
+                      </span>
+                      <p className="text-sm font-semibold text-white">
+                        {sec3.caption || 'Carte grise ivoirienne, plaques homologuées & clés remises en main propre'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-      </section>
+          </section>
+        )}
+      </div>
 
       {/* 3. SECTION FAQ AVEC BMW XM ENTRANTE SUR LA GAUCHE (Exact style Image 1 & Image 3) */}
       <section className="relative py-16 sm:py-24 bg-white border-t border-zinc-200 overflow-x-hidden">

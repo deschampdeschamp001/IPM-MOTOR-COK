@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft, Star } from 'lucide-react';
-
-import clientManImg from '../assets/images/client_delivery_man_1793375416666.jpg';
-import clientCoupleImg from '../assets/images/client_delivery_couple_1793375435524.jpg';
-import clientKeysImg from '../assets/images/client_holding_keys_1793375456332.jpg';
-
 import { getTestimonials, subscribeToTestimonials, TestimonialItem } from '../lib/testimonialsStorage';
 
 export const TestimonialsSection: React.FC = () => {
@@ -23,39 +18,38 @@ export const TestimonialsSection: React.FC = () => {
   const canGoPrev = startIndex > 0;
 
   const handleNext = () => {
-    if (canGoNext) setStartIndex(prev => prev + 1);
+    if (canGoNext) setStartIndex((prev) => prev + 1);
     else setStartIndex(0);
   };
 
   const handlePrev = () => {
-    if (canGoPrev) setStartIndex(prev => prev - 1);
+    if (canGoPrev) setStartIndex((prev) => prev - 1);
     else setStartIndex(Math.max(0, items.length - maxVisible));
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-[#FAFAFA] dark:bg-[#0c0c0e] border-t border-zinc-200/80 dark:border-zinc-800">
-      <div className="max-w-[1500px] mx-auto px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+    <section className="py-10 sm:py-14 bg-[#FAFAFA] dark:bg-[#0c0c0e] border-t border-zinc-200/80 dark:border-zinc-800">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-8 lg:px-16 xl:px-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
           
-          {/* Colonne gauche : Titre, sous-titre et badges de notation Google / Facebook (Style Image 2) */}
-          <div className="lg:col-span-4 space-y-5">
-            {/* Trait d'accentuation bleu */}
-            <div className="w-12 h-1 bg-[#1565C0] rounded-full" />
+          {/* Colonne gauche : Titre, sous-titre et badges Google / Facebook */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="w-10 h-1 bg-[#1565C0] rounded-full" />
 
             <div>
-              <h2 className="font-heading font-bold text-2xl sm:text-3xl text-zinc-950 dark:text-white tracking-tight leading-snug">
+              <h2 className="font-heading font-bold text-xl sm:text-2xl lg:text-3xl text-zinc-950 dark:text-white tracking-tight leading-snug">
                 Clients heureux, nous aussi !
               </h2>
-              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 font-light leading-relaxed">
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1.5 font-light leading-relaxed">
                 Vous pouvez nous faire confiance, comme ces clients déjà heureux !
               </p>
             </div>
 
-            {/* Badges Google & Facebook avec étoiles dorées */}
-            <div className="pt-2 space-y-3">
+            {/* Badges Google & Facebook compacts */}
+            <div className="pt-1 flex flex-row lg:flex-col gap-4 lg:gap-2.5">
               {/* Google */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-xs flex items-center justify-center p-1.5 shrink-0 border border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-white dark:bg-zinc-800 shadow-xs flex items-center justify-center p-1 shrink-0 border border-zinc-200 dark:border-zinc-700">
                   <svg viewBox="0 0 24 24" className="w-full h-full">
                     <path
                       fill="#4285F4"
@@ -76,33 +70,33 @@ export const TestimonialsSection: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white">Google</span>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white">4.8</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-zinc-900 dark:text-white">Google</span>
+                    <span className="text-[11px] font-bold text-zinc-900 dark:text-white">4.8</span>
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
                 </div>
               </div>
 
               {/* Facebook */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#1877F2] shadow-xs flex items-center justify-center p-1.5 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-[#1877F2] shadow-xs flex items-center justify-center p-1 shrink-0">
                   <svg viewBox="0 0 24 24" className="w-full h-full fill-white">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white">Facebook</span>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white">4.8</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-zinc-900 dark:text-white">Facebook</span>
+                    <span className="text-[11px] font-bold text-zinc-900 dark:text-white">4.8</span>
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
                 </div>
@@ -110,16 +104,55 @@ export const TestimonialsSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Colonne droite : Slider horizontal des cartes de témoignages avec photos réelles */}
+          {/* Colonne droite : Slider horizontal parallax sur Mobile/Tablette, grille 3 sur Desktop */}
           <div className="lg:col-span-8 relative">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+            {/* Mobile / Tablette : Défilement horizontal fluide de gauche à droite (Parallax minimaliste) */}
+            <div className="flex lg:hidden overflow-x-auto snap-x snap-mandatory gap-3.5 pb-2 scrollbar-none -mx-4 px-4">
+              {items.map((item: TestimonialItem) => (
+                <div
+                  key={item.id}
+                  className="w-[240px] sm:w-[270px] shrink-0 snap-start bg-white dark:bg-[#141416] rounded-xl overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-xs flex flex-col justify-between"
+                >
+                  <div className="relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={`Client ${item.name} IPM Motors`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
+                    <p className="text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-light leading-relaxed line-clamp-3">
+                      {item.comment}
+                    </p>
+
+                    <div className="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+                      <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-[9px] font-bold text-zinc-700 dark:text-zinc-200 shrink-0">
+                        {item.avatarText}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-bold text-zinc-900 dark:text-white block truncate">
+                          {item.name}
+                        </span>
+                        <span className="text-[9px] text-zinc-400 font-light block">
+                          {item.date}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop : Grille 3 blocs avec flèche de navigation */}
+            <div className="hidden lg:grid grid-cols-3 gap-4">
               {items.slice(startIndex, startIndex + maxVisible).map((item: TestimonialItem) => (
                 <div
                   key={item.id}
-                  className="bg-white dark:bg-[#141416] rounded-2xl overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-sm flex flex-col justify-between transition-all hover:shadow-md"
+                  className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-xs flex flex-col justify-between transition-all hover:shadow-md"
                 >
-                  {/* Photo de livraison du client */}
-                  <div className="relative aspect-[16/11] bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                  <div className="relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
                     <img
                       src={item.image}
                       alt={`Client ${item.name} IPM Motors`}
@@ -127,14 +160,13 @@ export const TestimonialsSection: React.FC = () => {
                     />
                   </div>
 
-                  {/* Commentaire et identité */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
-                    <p className="text-xs sm:text-[13px] text-zinc-700 dark:text-zinc-300 font-light leading-relaxed">
+                  <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
+                    <p className="text-xs text-zinc-700 dark:text-zinc-300 font-light leading-relaxed line-clamp-3">
                       {item.comment}
                     </p>
 
-                    <div className="flex items-center gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                      <div className="w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-[10px] font-bold text-zinc-700 dark:text-zinc-200 shrink-0">
+                    <div className="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+                      <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-[9px] font-bold text-zinc-700 dark:text-zinc-200 shrink-0">
                         {item.avatarText}
                       </div>
                       <div className="min-w-0">
@@ -151,14 +183,14 @@ export const TestimonialsSection: React.FC = () => {
               ))}
             </div>
 
-            {/* Bouton flèche navigation circulaire droite comme sur Image 2 */}
+            {/* Bouton flèche navigation circulaire droite desktop */}
             <button
               type="button"
               onClick={handleNext}
               aria-label="Témoignage suivant"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-lg text-zinc-800 dark:text-white flex items-center justify-center hover:bg-[#e10600] hover:text-white transition-colors cursor-pointer z-10 hidden sm:flex"
+              className="absolute -right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-md text-zinc-800 dark:text-white items-center justify-center hover:bg-[#e10600] hover:text-white transition-colors cursor-pointer z-10 hidden lg:flex"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 

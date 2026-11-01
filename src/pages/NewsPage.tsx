@@ -21,7 +21,6 @@ const parseDateBadge = (dateStr: string) => {
 
 export const NewsPage: React.FC = () => {
   const { newsArticles } = useData();
-  const [selectedCategory, setSelectedCategory] = useState<string>('Tous');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
@@ -29,22 +28,16 @@ export const NewsPage: React.FC = () => {
   }, []);
 
   const publishedArticles = newsArticles.filter((n) => n.is_published);
-  const categories = ['Tous', 'Offres Spéciales', 'Nouveautés 0 km', 'Électrique & Hybride', 'Tout-Terrain'];
-
-  const filteredArticles =
-    selectedCategory === 'Tous'
-      ? publishedArticles
-      : publishedArticles.filter((a) => a.category.toLowerCase() === selectedCategory.toLowerCase());
 
   // Pagination (6 articles per page matching Image 2 3x2 grid)
   const itemsPerPage = 6;
-  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / itemsPerPage));
-  const currentArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(publishedArticles.length / itemsPerPage));
+  const currentArticles = publishedArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="pt-24 sm:pt-32 pb-24 max-w-[1550px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 xl:px-28">
       {/* En-tête simple et aéré */}
-      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
         <span className="eyebrow block mb-2">Magazine Automobile & Nouveautés</span>
         <h1 className="font-heading font-light text-3xl sm:text-5xl tracking-tight text-[var(--fg)]">
           L’Actualité <span className="font-semibold text-[#e10600]">IPM Motors</span>
@@ -52,26 +45,6 @@ export const NewsPage: React.FC = () => {
         <p className="text-sm sm:text-base text-[#6b6b72] mt-3 font-light leading-relaxed">
           Retrouvez nos arrivages officiels 0 km à Abidjan, nos analyses techniques et les conseils de nos experts automobiles.
         </p>
-      </div>
-
-      {/* Filtres par catégorie */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => {
-              setSelectedCategory(cat);
-              setCurrentPage(1);
-            }}
-            className={`pill-btn px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
-              selectedCategory === cat
-                ? 'bg-[#e10600] text-white shadow-sm'
-                : 'bg-white dark:bg-zinc-900 text-[#6b6b72] hover:text-[var(--fg)] border border-zinc-200 dark:border-zinc-800'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
       </div>
 
       {/* Grille d'articles fidèle à l'Image 2 (Bords carrés, badge date orange/ambre bas-droite de la photo, titre vert foncé) */}

@@ -28,20 +28,20 @@
     scroll-behavior: smooth;
     background-color: var(--bg);
     color: var(--fg);
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
 
   body {
     background-color: var(--bg);
     color: var(--fg);
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     min-height: 100vh;
   }
 
   #root {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     min-height: 100vh;
   }
@@ -110,6 +110,18 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(150, 150, 150, 0.5);
+}
+
+/* Full Bleed Layout Helpers */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.full-bleed__inner {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
 

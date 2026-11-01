@@ -248,120 +248,73 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          {/* Carrousel 3 cartes visibles avec boutons fléchés circulaires gauche/droite comme Image 4 */}
-          <div className="relative">
-            {/* Bouton Précédent */}
-            <button
-              type="button"
-              onClick={() =>
-                setServiceSlideIndex((prev) => (prev <= 0 ? SERVICES_DATA.length - 1 : prev - 1))
-              }
-              aria-label="Service précédent"
-              className="absolute -left-3 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-200/90 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-md transition-all cursor-pointer"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {/* Bouton Suivant */}
-            <button
-              type="button"
-              onClick={() =>
-                setServiceSlideIndex((prev) => (prev + 1) % SERVICES_DATA.length)
-              }
-              aria-label="Service suivant"
-              className="absolute -right-3 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-200/90 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-md transition-all cursor-pointer"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            {/* Grille de 3 blocs dorés #f59e0b affichés simultanément sur PC, 1 sur mobile */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-6">
-              {[0, 1, 2].map((offset) => {
-                const itemIndex = (serviceSlideIndex + offset) % SERVICES_DATA.length;
-                const service = SERVICES_DATA[itemIndex];
-
-                return (
-                  <div
-                    key={`${service.id}-${offset}`}
-                    className="rounded-3xl bg-[#f59e0b] text-white p-8 sm:p-10 flex flex-col justify-between items-center text-center shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 min-h-[380px] sm:min-h-[420px]"
-                  >
-                    <div className="flex flex-col items-center w-full">
-                      {/* Icônes blanches pures style Image 4 */}
-                      <div className="w-18 h-18 sm:w-20 sm:h-20 mb-6 flex items-center justify-center text-white">
-                        {service.type === 'globe' && (
-                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="2" y1="12" x2="22" y2="12" />
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                          </svg>
-                        )}
-                        {service.type === 'pen' && (
-                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="m12 19 7-7 3 3-7 7-3-3z" />
-                            <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-                            <path d="m2 2 7.586 7.586" />
-                            <circle cx="11" cy="11" r="2" />
-                          </svg>
-                        )}
-                        {service.type === 'code' && (
-                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="16 18 22 12 16 6" />
-                            <polyline points="8 6 2 12 8 18" />
-                          </svg>
-                        )}
-                        {service.type === 'shield' && (
-                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            <polyline points="9 12 11 14 15 10" />
-                          </svg>
-                        )}
-                        {service.type === 'vip' && (
-                          <svg className="w-16 h-16 sm:w-18 sm:h-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                          </svg>
-                        )}
-                      </div>
-
-                      {/* Titre blanc centré */}
-                      <h3 className="font-heading font-bold text-xl sm:text-2xl text-white mb-4 leading-snug">
-                        {service.title}
-                      </h3>
-
-                      {/* Description séparée par des | style Image 4 */}
-                      <p className="text-white/95 text-xs sm:text-sm font-normal leading-relaxed max-w-xs">
-                        {service.description}
-                      </p>
-                    </div>
-
-                    {/* Lien d'action blanc épuré */}
-                    <div className="mt-8 pt-4 border-t border-white/20 w-full">
-                      <Link
-                        to={service.link}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white hover:text-white/80 transition-colors"
-                      >
-                        <span>{service.cta}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
+          {/* Grille responsive et défilement horizontal parallax sur mobile/tablette (affiche tous les blocs, sans flèches, taille diminuée et minimaliste) */}
+          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-3 sm:gap-4 pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
+            {SERVICES_DATA.map((service) => (
+              <div
+                key={service.id}
+                className="w-[230px] sm:w-[250px] md:w-auto shrink-0 snap-start rounded-2xl bg-[#f59e0b] text-white p-5 sm:p-6 flex flex-col justify-between items-center text-center shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 min-h-[300px] sm:min-h-[320px]"
+              >
+                <div className="flex flex-col items-center w-full">
+                  {/* Icônes blanches pures compactes */}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 mb-3.5 flex items-center justify-center text-white">
+                    {service.type === 'globe' && (
+                      <svg className="w-10 h-10 sm:w-11 sm:h-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                    )}
+                    {service.type === 'pen' && (
+                      <svg className="w-10 h-10 sm:w-11 sm:h-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m12 19 7-7 3 3-7 7-3-3z" />
+                        <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                        <path d="m2 2 7.586 7.586" />
+                        <circle cx="11" cy="11" r="2" />
+                      </svg>
+                    )}
+                    {service.type === 'code' && (
+                      <svg className="w-10 h-10 sm:w-11 sm:h-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="16 18 22 12 16 6" />
+                        <polyline points="8 6 2 12 8 18" />
+                      </svg>
+                    )}
+                    {service.type === 'shield' && (
+                      <svg className="w-10 h-10 sm:w-11 sm:h-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <polyline points="9 12 11 14 15 10" />
+                      </svg>
+                    )}
+                    {service.type === 'vip' && (
+                      <svg className="w-10 h-10 sm:w-11 sm:h-11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    )}
                   </div>
-                );
-              })}
-            </div>
 
-            {/* Puces de pagination carrousel */}
-            <div className="flex items-center justify-center gap-2 mt-8">
-              {SERVICES_DATA.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setServiceSlideIndex(idx)}
-                  aria-label={`Service ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${
-                    serviceSlideIndex === idx ? 'w-8 bg-[#f59e0b]' : 'w-2 bg-zinc-300 dark:bg-zinc-700'
-                  }`}
-                />
-              ))}
-            </div>
+                  {/* Titre blanc centré */}
+                  <h3 className="font-heading font-bold text-sm sm:text-base text-white mb-2 leading-snug">
+                    {service.title}
+                  </h3>
+
+                  {/* Description séparée par des | style Image 4 */}
+                  <p className="text-white/95 text-[11px] sm:text-xs font-normal leading-relaxed line-clamp-4">
+                    {service.description}
+                  </p>
+                </div>
+
+                {/* Lien d'action blanc épuré */}
+                <div className="mt-4 pt-3 border-t border-white/20 w-full">
+                  <Link
+                    to={service.link}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-white hover:text-white/80 transition-colors"
+                  >
+                    <span>{service.cta}</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -547,17 +500,6 @@ export const HomePage: React.FC = () => {
               </ul>
             </div>
           </div>
-
-          {/* Lien vers la page dédiée */}
-          <div className="mt-10 sm:mt-12 text-center">
-            <Link
-              to="/apres-vente"
-              className="pill-btn inline-flex items-center gap-2 px-8 py-3.5 bg-zinc-950 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-lg"
-            >
-              <span>En savoir plus sur nos garanties & SAV</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -639,8 +581,8 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Grille des Actualités : 3 blocs sur PC (minimalistes et compacts, fidèles à l'Image 2 & 3) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Grille des Actualités : 3 blocs sur PC, défilement horizontal parallax minimaliste sur mobile/tablette */}
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-3 -mx-4 px-4 md:mx-0 md:px-0 mb-8">
             {displayedNews.map((article) => {
               const articleSlug = article.slug || article.id;
               const waArticleUrl = buildWhatsAppUrl(`Bonjour IPM Motors, je souhaite des renseignements suite à votre article : "${article.title}".`);
@@ -649,7 +591,7 @@ export const HomePage: React.FC = () => {
               return (
                 <article
                   key={article.id}
-                  className="group flex flex-col justify-between bg-white dark:bg-zinc-900/70 rounded-xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:shadow-md transition-all duration-300"
+                  className="w-[250px] sm:w-[280px] md:w-auto shrink-0 snap-start group flex flex-col justify-between bg-white dark:bg-zinc-900/70 rounded-xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:shadow-md transition-all duration-300"
                 >
                   <div>
                     {/* Zone Image avec Badge Date en bas à droite (Exact Image 2) */}

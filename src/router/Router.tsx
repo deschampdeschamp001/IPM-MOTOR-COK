@@ -44,6 +44,11 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const handlePopState = () => {
       setPathname(window.location.pathname || '/');
       setSearch(window.location.search || '');
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      try {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      } catch {}
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -68,7 +73,11 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     setPathname(normalizedPath);
     setSearch(fullSearch);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    try {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    } catch {}
   }, []);
 
   const value = useMemo(() => ({
@@ -154,6 +163,7 @@ export const Link: React.FC<LinkProps> = ({ to, replace, onClick, children, ...r
     }
     if (!to.startsWith('http') && !to.startsWith('tel:') && !to.startsWith('mailto:')) {
       e.preventDefault();
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
       navigate(to, { replace });
     }
   };

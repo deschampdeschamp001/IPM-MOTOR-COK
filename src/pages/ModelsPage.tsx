@@ -245,21 +245,8 @@ export const ModelsPage: React.FC = () => {
 
       {/* Conteneur principal split-view moderne avec défilement fluide et naturel */}
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-8">
-        {/* Colonne gauche : Panneau Filtres compact, fixe et tenant entièrement sur l'écran sans défilement global */}
-        <aside
-          className={`
-            ${mobileFilterOpen ? 'fixed inset-0 z-50 p-6 bg-white overflow-y-auto block' : 'hidden lg:block'}
-            lg:sticky lg:top-20 lg:self-start lg:w-72 xl:w-76 lg:shrink-0 space-y-2.5 lg:pr-1
-          `}
-        >
-          {mobileFilterOpen && (
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 lg:hidden mb-3">
-              <span className="font-heading font-bold text-sm text-zinc-950">Filtres de recherche</span>
-              <button onClick={() => setMobileFilterOpen(false)} className="p-2 text-zinc-600 hover:text-black">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          )}
+        {/* Colonne gauche Desktop : Panneau Filtres compact et fixe */}
+        <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start lg:w-72 xl:w-76 lg:shrink-0 space-y-2.5 lg:pr-1">
 
           {/* Bloc 1 : MARQUES (Recherche rapide + liste marques élégante et compacte) */}
           <div className="p-3 rounded-xl bg-white border border-zinc-200/90 shadow-2xs">
@@ -434,23 +421,112 @@ export const ModelsPage: React.FC = () => {
               })}
             </div>
           </div>
-
-          {mobileFilterOpen && (
-            <div className="pt-4 lg:hidden">
-              <button
-                onClick={() => setMobileFilterOpen(false)}
-                className="w-full py-3.5 bg-[#e10600] text-white rounded-full font-semibold text-xs uppercase tracking-wider shadow-sm"
-              >
-                Voir les modèles ({filteredVehicles.length})
-              </button>
-            </div>
-          )}
         </aside>
+
+        {/* Modal Bottom Sheet pour filtres mobile/tablette */}
+        {mobileFilterOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end lg:hidden">
+            <div className="bg-white dark:bg-[#121214] rounded-t-3xl max-h-[85vh] flex flex-col p-5 overflow-y-auto shadow-2xl">
+              <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-700 rounded-full mx-auto mb-3" />
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-3">
+                <span className="font-heading font-bold text-sm text-zinc-950 dark:text-white">Filtres du Catalogue</span>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="p-1.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Filtres compacts mobile */}
+              <div className="space-y-4 py-2">
+                {/* Marques */}
+                <div>
+                  <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-zinc-900 dark:text-white mb-2">
+                    Marques
+                  </h4>
+                  <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                    {allBrandNames.map((brand) => (
+                      <label key={brand} className="flex items-center gap-2 text-xs py-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedMarques.includes(brand)}
+                          onChange={() => toggleMarque(brand)}
+                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                        />
+                        <span className="truncate">{brand}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Carrosserie */}
+                <div>
+                  <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-zinc-900 dark:text-white mb-2">
+                    Type de carrosserie
+                  </h4>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {vehicleTypesList.map((type) => (
+                      <label key={type} className="flex items-center gap-2 text-xs py-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedTypes.includes(type)}
+                          onChange={() => toggleType(type)}
+                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                        />
+                        <span>{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Motorisation */}
+                <div>
+                  <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-zinc-900 dark:text-white mb-2">
+                    Motorisation
+                  </h4>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {availableEnergies.map((eng) => (
+                      <label key={eng} className="flex items-center gap-2 text-xs py-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedEnergies.includes(eng)}
+                          onChange={() => toggleEnergie(eng)}
+                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                        />
+                        <span>{eng}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Boutons actions mobile */}
+              <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex gap-2">
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="py-2.5 px-4 rounded-full border border-zinc-200 dark:border-zinc-700 text-xs font-semibold"
+                >
+                  Effacer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="flex-1 py-2.5 bg-[#e10600] text-white rounded-full text-xs font-semibold shadow-xs"
+                >
+                  Voir les modèles ({filteredVehicles.length})
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Colonne droite : Catalogue des véhicules avec défilement naturel de la page */}
         <main className="flex-1 lg:pl-1 lg:pr-2">
           {filteredVehicles.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
               {filteredVehicles.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))}

@@ -27,6 +27,11 @@ import {
   ArrowUp,
   ArrowDown,
   Layers,
+  ShieldCheck,
+  Wrench,
+  RotateCcw,
+  FileCheck2,
+  MoreHorizontal,
 } from 'lucide-react';
 import { Vehicle, Lead, Brand, VehicleType, NewsArticle, NewsletterSubscriber, ExclusiveBannerConfig } from '../../types';
 import { getAllSubscribers } from '../../lib/newsletterStorage';
@@ -80,6 +85,13 @@ import {
   subscribeToTestimonials,
   TestimonialItem,
 } from '../../lib/testimonialsStorage';
+import {
+  ServiceSectionItem,
+  getServicesSections,
+  saveServicesSections,
+  resetServicesSections,
+  subscribeToServicesSections,
+} from '../../config/servicesConfig';
 
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
@@ -116,7 +128,7 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) => {
-  const [activeTab, setActiveTab] = useState<'vehicles' | 'brands' | 'news' | 'leads' | 'newsletter' | 'banner' | 'hero' | 'testimonials'>('vehicles');
+  const [activeTab, setActiveTab] = useState<'vehicles' | 'brands' | 'news' | 'leads' | 'newsletter' | 'banner' | 'hero' | 'testimonials' | 'services'>('vehicles');
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
   const [session, setSession] = useState<any>(null);
@@ -124,6 +136,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
+
+  // Services & SAV state (Full-Bleed sections: Garantie, Ateliers, Immatriculation)
+  const [servicesSections, setServicesSections] = useState<ServiceSectionItem[]>(() => getServicesSections());
+  const [editingServiceSection, setEditingServiceSection] = useState<ServiceSectionItem | null>(null);
+  const [uploadingServiceImage, setUploadingServiceImage] = useState(false);
+  const [isSavingServices, setIsSavingServices] = useState(false);
 
   // Hero Diaporama slides state
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => getHeroSlides());
@@ -138,6 +156,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   // Exclusive WhatsApp Banner configuration state
   const [bannerConfig, setBannerConfig] = useState<ExclusiveBannerConfig>(() => getExclusiveBannerConfig());
   const [isSavingBanner, setIsSavingBanner] = useState(false);
+
+  // Mobile navigation Plus modal
+  const [isMobileAdminPlusOpen, setIsMobileAdminPlusOpen] = useState(false);
 
   // Vehicles state
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
@@ -228,6 +249,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   // Listen for testimonials updates
   useEffect(() => {
     const unsub = subscribeToTestimonials((items) => setTestimonialsList(items));
+    return unsub;
+  }, []);
+
+  // Listen for services sections updates
+  useEffect(() => {
+    const unsub = subscribeToServicesSections((items) => setServicesSections(items));
     return unsub;
   }, []);
 
@@ -792,6 +819,89 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
     reader.readAsDataURL(file);
   };
 
+  const handleLoadDefaultCatalogue = async () => {
+    setIsLoadingVehicles(true);
+    try {
+      if (isSupabaseConfigured()) {
+        showNotification('Synchronisation des exemples prédéfinis du catalogue avec Supabase...', 'success');
+        let count = 0;
+        for (const v of FALLBACK_VEHICLES) {
+          const { error } = await saveVehicleToDB(v);
+          if (!error) count++;
+        }
+        await loadVehicles();
+        showNotification(`Catalogue chargé avec succès (${count} véhicules synchronisés sur Supabase) !`);
+      } else {
+        setVehicles(FALLBACK_VEHICLES);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('ipm_cached_vehicles', JSON.stringify(FALLBACK_VEHICLES));
+        }
+        showNotification(`Catalogue chargé avec succès (${FALLBACK_VEHICLES.length} véhicules préremplis) !`);
+      }
+    } catch (err: any) {
+      showNotification('Erreur de chargement des exemples : ' + (err?.message || ''), 'error');
+    } finally {
+      setIsLoadingVehicles(false);
+    }
+  };
+
+  const handleSaveServiceSection = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingServiceSection) return;
+    setIsSavingServices(true);
+    const updated = servicesSections.map((s) =>
+      s.id === editingServiceSection.id ? editingServiceSection : s
+    );
+    setServicesSections(updated);
+    saveServicesSections(updated);
+    setIsSavingServices(false);
+    setEditingServiceSection(null);
+    showNotification('Section Service Après-Vente enregistrée avec succès !');
+  };
+
+  const handleResetServices = () => {
+    const defaults = resetServicesSections();
+    setServicesSections(defaults);
+    setEditingServiceSection(null);
+    showNotification('Sections Services & SAV réinitialisées aux valeurs d’origine.');
+  };
+
+  const handleServiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingServiceSection) return;
+    setUploadingServiceImage(true);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Url = reader.result as string;
+      setEditingServiceSection((prev) => (prev ? { ...prev, image: base64Url } : null));
+
+      if (isSupabaseConfigured()) {
+        try {
+          const { url, error } = await uploadVehicleImage(file);
+          if (url) {
+            setEditingServiceSection((prev) => (prev ? { ...prev, image: url } : null));
+            showNotification('Image téléversée avec succès sur Supabase !');
+          } else if (error) {
+            showNotification('Image conservée en haute qualité locale', 'success');
+          }
+        } catch {
+          // Keep base64
+        } finally {
+          setUploadingServiceImage(false);
+        }
+      } else {
+        showNotification('Nouvelle image chargée avec succès !');
+        setUploadingServiceImage(false);
+      }
+    };
+    reader.onerror = () => {
+      showNotification('Impossible de lire le fichier image sélectionné', 'error');
+      setUploadingServiceImage(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
   // 1. Login View
   if (!session) {
     return (
@@ -941,9 +1051,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 flex-1 space-y-6">
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center justify-between border-b border-[#2A2A2A] pb-4 gap-4">
-          <div className="flex items-center gap-2">
+        {/* Navigation Tabs Desktop (xl+) et Mobile/Tablette (5 boutons exactement) */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between border-b border-[#2A2A2A] pb-4 gap-4">
+          {/* Version Desktop (Toutes les options visibles) */}
+          <div className="hidden xl:flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setActiveTab('vehicles')}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
@@ -1048,7 +1159,205 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
               <MessageSquare className="w-4 h-4" />
               <span>Témoignages ({testimonialsList.length})</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('services')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
+                activeTab === 'services'
+                  ? 'bg-[#E10600] text-white shadow-sm'
+                  : 'text-[#8A8A8A] hover:text-white hover:bg-[#141414]'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Services & SAV ({servicesSections.length})</span>
+            </button>
           </div>
+
+          {/* Version Mobile & Tablette (< xl) : EXACTEMENT 5 BOUTONS DOCK */}
+          <div className="xl:hidden w-full">
+            <div className="grid grid-cols-5 gap-1.5 p-1.5 rounded-2xl bg-[#141414] border border-[#2A2A2A] shadow-md">
+              {/* 1. Catalogue */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('vehicles')}
+                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
+                  activeTab === 'vehicles' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Car className="w-4 h-4" />
+                <span className="text-[10px] font-semibold truncate max-w-full">Catalogue</span>
+              </button>
+
+              {/* 2. Marques */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('brands')}
+                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
+                  activeTab === 'brands' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Tags className="w-4 h-4" />
+                <span className="text-[10px] font-semibold truncate max-w-full">Marques</span>
+              </button>
+
+              {/* 3. Actualités */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('news');
+                  loadNews();
+                }}
+                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
+                  activeTab === 'news' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Newspaper className="w-4 h-4" />
+                <span className="text-[10px] font-semibold truncate max-w-full">Actualités</span>
+              </button>
+
+              {/* 4. Demandes */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('leads');
+                  loadLeads();
+                }}
+                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
+                  activeTab === 'leads' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                <span className="text-[10px] font-semibold truncate max-w-full">Demandes</span>
+              </button>
+
+              {/* 5. Plus (Bouton avec boite modale) */}
+              <button
+                type="button"
+                onClick={() => setIsMobileAdminPlusOpen(true)}
+                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
+                  ['newsletter', 'banner', 'hero', 'testimonials', 'services'].includes(activeTab)
+                    ? 'bg-[#E10600] text-white'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <MoreHorizontal className="w-4 h-4" />
+                <span className="text-[10px] font-semibold truncate max-w-full">Plus</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Boite modale pour le 5ème bouton (Plus) sur mobile & tablette */}
+          {isMobileAdminPlusOpen && (
+            <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex flex-col justify-end xl:hidden">
+              <div className="bg-[#141414] border-t border-[#2A2A2A] rounded-t-3xl p-5 max-h-[85vh] overflow-y-auto space-y-2 shadow-2xl animate-in slide-in-from-bottom duration-200">
+                <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-3" />
+                <div className="flex items-center justify-between pb-3 border-b border-[#2A2A2A] mb-3">
+                  <span className="font-heading font-bold text-sm text-white">Menu d'administration</span>
+                  <button
+                    onClick={() => setIsMobileAdminPlusOpen(false)}
+                    className="p-1.5 text-zinc-400 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('newsletter');
+                      loadSubscribers();
+                      setIsMobileAdminPlusOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
+                      activeTab === 'newsletter' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
+                    }`}
+                  >
+                    <Mail className="w-4 h-4 text-zinc-400" />
+                    <span>Newsletter ({subscribers.length})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('banner');
+                      setIsMobileAdminPlusOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
+                      activeTab === 'banner' ? 'bg-[#032b17] text-[#f6b704] border border-[#f6b704]/40' : 'text-zinc-300 hover:bg-[#1E1E1E]'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4 text-[#f6b704]" />
+                    <span>Bandeau Exclusif WhatsApp</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('hero');
+                      setIsMobileAdminPlusOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
+                      activeTab === 'hero' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
+                    }`}
+                  >
+                    <Layers className="w-4 h-4 text-zinc-400" />
+                    <span>Diaporama Hero ({heroSlides.length})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('testimonials');
+                      setIsMobileAdminPlusOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
+                      activeTab === 'testimonials' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
+                    }`}
+                  >
+                    <MessageSquare className="w-4 h-4 text-zinc-400" />
+                    <span>Témoignages ({testimonialsList.length})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('services');
+                      setIsMobileAdminPlusOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
+                      activeTab === 'services' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4 text-zinc-400" />
+                    <span>Services & SAV ({servicesSections.length})</span>
+                  </button>
+                </div>
+
+                <div className="pt-3 border-t border-[#2A2A2A] space-y-2">
+                  <a
+                    href="/"
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#1E1E1E] hover:bg-[#252525] text-zinc-300 text-xs font-semibold flex items-center justify-center gap-2"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Retour au site</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileAdminPlusOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 text-xs font-semibold flex items-center justify-center gap-2 border border-red-800/40 cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Se déconnecter</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {activeTab === 'testimonials' && (
             <div className="flex items-center gap-2">
@@ -1131,32 +1440,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
           )}
 
           {activeTab === 'vehicles' && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleLoadDefaultCatalogue}
+                disabled={isLoadingVehicles}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#222222] hover:bg-[#333333] text-zinc-200 text-xs font-semibold rounded-md transition-colors cursor-pointer border border-[#333333]"
+                title="Importer et préremplir les modèles d'exemples du catalogue (BYD, BMW, Jetour, Toyota, etc.)"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Charger les exemples prédéfinis</span>
+              </button>
+
+              <button
+                onClick={() =>
+                  setEditingVehicle({
+                    brand: 'Toyota',
+                    model: '',
+                    year: new Date().getFullYear(),
+                    type: 'SUV',
+                    fuel: 'Essence',
+                    transmission: 'Automatique',
+                    seats: 5,
+                    price: null,
+                    price_label: 'Sur demande',
+                    is_available: true,
+                    is_featured: false,
+                    is_offer: false,
+                    is_exclusive: false,
+                    offer_badge: '',
+                    offer_highlights: [],
+                    images: [],
+                    description: '',
+                  })
+                }
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#E10600] hover:bg-[#B00500] text-white text-xs uppercase tracking-wider font-bold rounded-md transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Ajouter un véhicule</span>
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'services' && (
             <button
-              onClick={() =>
-                setEditingVehicle({
-                  brand: 'Toyota',
-                  model: '',
-                  year: new Date().getFullYear(),
-                  type: 'SUV',
-                  fuel: 'Essence',
-                  transmission: 'Automatique',
-                  seats: 5,
-                  price: null,
-                  price_label: 'Sur demande',
-                  is_available: true,
-                  is_featured: false,
-                  is_offer: false,
-                  is_exclusive: false,
-                  offer_badge: '',
-                  offer_highlights: [],
-                  images: [],
-                  description: '',
-                })
-              }
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#E10600] hover:bg-[#B00500] text-white text-xs uppercase tracking-wider font-bold rounded-md transition-colors cursor-pointer"
+              type="button"
+              onClick={handleResetServices}
+              className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#222222] hover:bg-[#333333] text-zinc-300 text-xs font-semibold rounded-md border border-[#333333] cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              <span>Ajouter un véhicule</span>
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Restaurer par défaut</span>
             </button>
           )}
 
@@ -1246,16 +1579,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                 <p className="text-sm text-[#8A8A8A]">Aucun véhicule dans la base de données distante.</p>
                 <button
                   type="button"
-                  onClick={() => {
-                    setVehicles(FALLBACK_VEHICLES);
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('ipm_cached_vehicles', JSON.stringify(FALLBACK_VEHICLES));
-                    }
-                    showNotification('Véhicules d’exemple préchargés localement.');
-                  }}
-                  className="px-4 py-2 bg-[#222222] hover:bg-[#333333] text-xs text-white rounded font-medium border border-[#333333]"
+                  onClick={handleLoadDefaultCatalogue}
+                  disabled={isLoadingVehicles}
+                  className="px-4 py-2 bg-[#E10600] hover:bg-[#b00500] text-xs text-white rounded font-medium shadow-md transition-colors cursor-pointer"
                 >
-                  Charger les exemples prédéfinis
+                  Charger les exemples prédéfinis du catalogue
                 </button>
               </div>
             ) : (
@@ -2270,6 +2598,118 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                       title="Supprimer ce témoignage"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 8: Services & SAV Configuration (Full-Bleed sections: Garantie, Ateliers, Immatriculation) */}
+        {activeTab === 'services' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[#E10600]" />
+                  <span>Sections Service Après-Vente & Garanties (Full-Bleed)</span>
+                </h2>
+                <p className="text-xs text-[#8A8A8A] mt-1 max-w-2xl">
+                  Modifiez directement les textes, puces d'engagement et images des 3 sections majeures de la page Services : Garantie Constructeur Officielle, Ateliers Certifiés & Pièces OEM, et Immatriculation & Clés en Main (Représentation Côte d'Ivoire).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetServices}
+                  className="px-4 py-2 bg-[#1A1A1A] hover:bg-[#252525] text-neutral-300 text-xs font-semibold rounded-md border border-[#333333] transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Restaurer par défaut</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {servicesSections.map((sec, idx) => (
+                <div
+                  key={sec.id}
+                  className="bg-[#141414] border border-[#2A2A2A] rounded-xl overflow-hidden flex flex-col justify-between hover:border-zinc-700 transition-all shadow-md group"
+                >
+                  <div>
+                    {/* Visual image thumbnail */}
+                    <div className="relative aspect-[16/10] bg-black overflow-hidden">
+                      <img
+                        src={sec.image}
+                        alt={sec.title}
+                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+                        onError={(e) => {
+                          e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute top-2.5 left-2.5">
+                        <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-black/85 text-white backdrop-blur-xs border border-white/10">
+                          {sec.badge || `Engagement 0${idx + 1}`}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-2.5 left-3 right-3 text-white">
+                        <span className="text-[10px] uppercase font-bold text-white/80 block">
+                          {sec.locationBadge || 'Abidjan'}
+                        </span>
+                        <p className="text-xs font-semibold text-white truncate">
+                          {sec.caption || sec.title}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Content details */}
+                    <div className="p-5 space-y-3">
+                      <div>
+                        <h3 className="font-heading font-bold text-base text-white leading-snug">
+                          {sec.title}
+                        </h3>
+                        <p className="text-xs text-[#8A8A8A] mt-1.5 line-clamp-3 leading-relaxed">
+                          {sec.subtitle}
+                        </p>
+                      </div>
+
+                      {/* Points list preview */}
+                      <div className="pt-2 border-t border-[#222222] space-y-1.5">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-semibold block">
+                          Puces d'engagements ({sec.points.length}) :
+                        </span>
+                        <ul className="space-y-1">
+                          {sec.points.slice(0, 3).map((pt, pIdx) => (
+                            <li key={pIdx} className="text-xs text-zinc-300 flex items-start gap-1.5 truncate">
+                              <span className="text-[#E10600] font-bold shrink-0">•</span>
+                              <span className="truncate">{pt}</span>
+                            </li>
+                          ))}
+                          {sec.points.length > 3 && (
+                            <li className="text-[10px] text-zinc-500 font-mono">
+                              +{sec.points.length - 3} autre(s) puce(s)...
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action bar */}
+                  <div className="p-4 bg-[#0A0A0A] border-t border-[#2A2A2A] flex items-center justify-between">
+                    <span className="text-[11px] text-zinc-500 font-mono">
+                      ID: {sec.id}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEditingServiceSection({ ...sec, points: [...sec.points] })}
+                      className="px-3.5 py-1.5 bg-[#222222] hover:bg-[#333333] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Edit className="w-3.5 h-3.5 text-[#E10600]" />
+                      <span>Modifier les textes & l'image</span>
                     </button>
                   </div>
                 </div>
@@ -3627,6 +4067,223 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                   className="px-6 py-2.5 bg-[#E10600] hover:bg-[#B00500] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-lg shadow-[#E10600]/25"
                 >
                   Enregistrer l'avis
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Service Section Modal */}
+      {editingServiceSection && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#141414] border border-[#2A2A2A] rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-[#2A2A2A]">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-[#E10600] font-bold">
+                  {editingServiceSection.badge || 'Engagement'}
+                </span>
+                <h2 className="text-lg font-bold text-white">
+                  Modifier la section « {editingServiceSection.title} »
+                </h2>
+              </div>
+              <button
+                onClick={() => setEditingServiceSection(null)}
+                className="text-[#8A8A8A] hover:text-white cursor-pointer p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveServiceSection} className="space-y-5">
+              {/* Image de la section avec upload direct */}
+              <div className="space-y-2">
+                <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold">
+                  Image d'illustration *
+                </label>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-32 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-[#2A2A2A] relative flex items-center justify-center">
+                    <img
+                      src={editingServiceSection.image}
+                      alt="Aperçu section"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 w-full space-y-2">
+                    <input
+                      type="text"
+                      required
+                      value={editingServiceSection.image}
+                      onChange={(e) =>
+                        setEditingServiceSection({ ...editingServiceSection, image: e.target.value })
+                      }
+                      placeholder="URL de l'image (/assets/... ou https://...)"
+                      className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-xs text-white focus:outline-none focus:border-[#E10600] font-mono"
+                    />
+                    <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#222222] hover:bg-[#333333] text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors border border-[#333333]">
+                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{uploadingServiceImage ? 'Téléversement en cours...' : 'Uploader une nouvelle photo'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={uploadingServiceImage}
+                        className="hidden"
+                        onChange={handleServiceImageUpload}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Titre & Mots en valeur */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                    Titre complet de la section *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingServiceSection.title}
+                    onChange={(e) =>
+                      setEditingServiceSection({ ...editingServiceSection, title: e.target.value })
+                    }
+                    className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                    Partie du titre mise en valeur
+                  </label>
+                  <input
+                    type="text"
+                    value={editingServiceSection.titleHighlight || ''}
+                    onChange={(e) =>
+                      setEditingServiceSection({ ...editingServiceSection, titleHighlight: e.target.value })
+                    }
+                    placeholder="Ex: Constructeur Officielle"
+                    className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                  />
+                </div>
+              </div>
+
+              {/* Badge & Légende d'image */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                    Libellé du badge supérieur
+                  </label>
+                  <input
+                    type="text"
+                    value={editingServiceSection.badge || ''}
+                    onChange={(e) =>
+                      setEditingServiceSection({ ...editingServiceSection, badge: e.target.value })
+                    }
+                    placeholder="Ex: Engagement 01"
+                    className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                    Badge de localisation (sur l'image)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingServiceSection.locationBadge || ''}
+                    onChange={(e) =>
+                      setEditingServiceSection({ ...editingServiceSection, locationBadge: e.target.value })
+                    }
+                    placeholder="Ex: Cocody Abidjan"
+                    className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                  />
+                </div>
+              </div>
+
+              {/* Sous-titre / Description */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold mb-1">
+                  Description / Sous-titre *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={editingServiceSection.subtitle}
+                  onChange={(e) =>
+                    setEditingServiceSection({ ...editingServiceSection, subtitle: e.target.value })
+                  }
+                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-sm text-white focus:outline-none focus:border-[#E10600]"
+                />
+              </div>
+
+              {/* Puces d'engagements (éditables) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs uppercase tracking-wider text-[#8A8A8A] font-semibold">
+                    Puces d'engagements détaillées
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditingServiceSection({
+                        ...editingServiceSection,
+                        points: [...editingServiceSection.points, 'Nouvel engagement'],
+                      })
+                    }
+                    className="text-xs text-[#E10600] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Ajouter une puce</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {editingServiceSection.points.map((pt, pIdx) => (
+                    <div key={pIdx} className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-zinc-500 w-5 text-right">{pIdx + 1}.</span>
+                      <input
+                        type="text"
+                        value={pt}
+                        onChange={(e) => {
+                          const newPts = [...editingServiceSection.points];
+                          newPts[pIdx] = e.target.value;
+                          setEditingServiceSection({ ...editingServiceSection, points: newPts });
+                        }}
+                        className="flex-1 px-3 py-1.5 bg-[#0A0A0A] border border-[#2A2A2A] rounded text-xs text-white focus:outline-none focus:border-[#E10600]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPts = editingServiceSection.points.filter((_, i) => i !== pIdx);
+                          setEditingServiceSection({ ...editingServiceSection, points: newPts });
+                        }}
+                        className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-950/40 rounded cursor-pointer"
+                        title="Supprimer cette puce"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Boutons validation */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2A2A2A]">
+                <button
+                  type="button"
+                  onClick={() => setEditingServiceSection(null)}
+                  className="px-4 py-2.5 bg-[#222222] hover:bg-[#333333] text-white text-xs rounded-lg font-medium cursor-pointer"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingServices}
+                  className="px-6 py-2.5 bg-[#E10600] hover:bg-[#B00500] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-lg shadow-[#E10600]/25"
+                >
+                  {isSavingServices ? 'Enregistrement...' : 'Enregistrer la section'}
                 </button>
               </div>
             </form>

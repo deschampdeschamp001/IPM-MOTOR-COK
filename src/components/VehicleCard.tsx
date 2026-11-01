@@ -24,31 +24,31 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
   const waVehicleUrl = buildVehicleWhatsAppUrl(vehicle);
 
   return (
-    <article className="group relative rounded-3xl bg-white border border-zinc-200/90 p-6 sm:p-7 flex flex-col items-center text-center justify-between min-h-[440px] transition-all duration-300 shadow-sm hover:shadow-xl hover:border-zinc-300">
+    <article className="group relative rounded-2xl sm:rounded-3xl bg-white dark:bg-[#141416] border border-zinc-200/90 dark:border-zinc-800 p-3.5 sm:p-5 lg:p-6 flex flex-col items-center text-center justify-between min-h-[340px] sm:min-h-[390px] transition-all duration-300 shadow-2xs hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700">
       {/* 1. Header du bloc : Marque, Modèle en sans-serif élégant, Badges sans bleu */}
       <div className="w-full flex flex-col items-center">
         {/* Marque */}
-        <span className="font-heading text-xs tracking-wider uppercase text-zinc-500 font-semibold mb-1">
+        <span className="font-heading text-[10px] sm:text-xs tracking-wider uppercase text-zinc-500 font-semibold mb-0.5">
           {vehicle.brand}
         </span>
 
-        {/* Titre du modèle en police sans-serif moderne, taille réduite */}
+        {/* Titre du modèle */}
         <Link to={`/vehicule/${vehicle.id}`} className="focus:outline-none block w-full">
-          <h3 className="font-heading font-bold text-lg sm:text-xl text-zinc-950 leading-tight line-clamp-1 mb-2.5 tracking-tight hover:text-[#e10600] transition-colors">
+          <h3 className="font-heading font-bold text-sm sm:text-base lg:text-lg text-zinc-950 dark:text-white leading-tight line-clamp-1 mb-1.5 tracking-tight hover:text-[#e10600] transition-colors">
             {vehicle.model}
           </h3>
         </Link>
 
-        {/* Badges horizontaux centrés (Nouveau en rouge IPM, motorisation en gris élégant) */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 mb-2">
-          <span className="bg-[#e10600] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider shadow-xs">
-            Nouveau
+        {/* Badges horizontaux centrés */}
+        <div className="flex flex-wrap items-center justify-center gap-1 mb-1.5">
+          <span className="bg-[#e10600] text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-2xs">
+            0 km
           </span>
-          <span className="bg-zinc-100 text-zinc-800 border border-zinc-200/80 text-[10px] sm:text-[11px] font-medium px-2.5 py-0.5 rounded uppercase tracking-wider">
+          <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded uppercase tracking-wider">
             {vehicle.fuel || vehicle.type}
           </span>
           {vehicle.year && (
-            <span className="bg-zinc-100 text-zinc-600 border border-zinc-200/60 text-[10px] font-mono px-2 py-0.5 rounded">
+            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700 text-[9px] font-mono px-1.5 py-0.5 rounded">
               {vehicle.year}
             </span>
           )}
@@ -58,14 +58,14 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
       {/* 2. Photo du véhicule centrée */}
       <Link
         to={`/vehicule/${vehicle.id}`}
-        className="w-full my-3 flex-1 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.03] transition-transform duration-300"
+        className="w-full my-2 flex-1 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-300"
       >
-        <div className="w-full h-40 sm:h-44 flex items-center justify-center">
+        <div className="w-full h-28 sm:h-36 lg:h-40 flex items-center justify-center">
           <img
             src={mainImage}
             alt={`${vehicle.brand} ${vehicle.model} 0 km`}
             loading="lazy"
-            className="max-h-full max-w-full object-contain filter drop-shadow-md"
+            className="max-h-full max-w-full object-contain filter drop-shadow-sm"
             onError={(e) => {
               e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
             }}
@@ -73,25 +73,25 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         </div>
       </Link>
 
-      {/* 3. Zone inférieure : Prix + Boutons d'action En savoir plus & WhatsApp */}
-      <div className="w-full mt-2 pt-2 flex flex-col items-center">
+      {/* 3. Zone inférieure : Prix + Boutons d'action */}
+      <div className="w-full mt-1 pt-1.5 flex flex-col items-center">
         {/* Prix toujours affiché au centre */}
-        <div className="mb-3 text-center">
-          <span className="text-[11px] text-zinc-500 font-light block leading-none mb-1">
+        <div className="mb-2 text-center">
+          <span className="text-[10px] text-zinc-500 font-light block leading-none mb-0.5">
             à partir de
           </span>
-          <span className="font-heading font-bold text-lg sm:text-xl text-zinc-950 tracking-tight">
-            {priceInfo.displayPrice} <sup className="text-[10px] font-normal text-zinc-400">[1]</sup>
+          <span className="font-heading font-bold text-sm sm:text-base lg:text-lg text-zinc-950 dark:text-white tracking-tight">
+            {priceInfo.displayPrice}
           </span>
         </div>
 
-        {/* Bloc d'actions : Grand bouton rouge 'En savoir plus' + Bouton WhatsApp direct avec message prérempli */}
-        <div className="w-full flex items-center justify-center gap-2 pt-1">
+        {/* Bloc d'actions : Bouton En savoir plus + WhatsApp */}
+        <div className="w-full flex items-center justify-center gap-1.5 pt-1">
           <Link
             to={`/vehicule/${vehicle.id}`}
-            className="flex-1 py-2.5 px-4 bg-[#e10600] hover:bg-[#c30500] text-white text-xs font-semibold rounded-full flex items-center justify-center transition-all shadow-sm hover:shadow"
+            className="flex-1 py-1.5 sm:py-2 px-3 bg-[#e10600] hover:bg-[#c30500] text-white text-[11px] sm:text-xs font-semibold rounded-full flex items-center justify-center transition-all shadow-xs"
           >
-            <span>En savoir plus</span>
+            <span>Détails</span>
           </Link>
 
           <a
@@ -100,9 +100,9 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             rel="noopener noreferrer"
             aria-label={`Acheter ou commander ${vehicle.brand} ${vehicle.model} sur WhatsApp`}
             title="Contacter par WhatsApp avec les détails de ce modèle"
-            className="w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center transition-all shadow-md hover:scale-110 shrink-0"
+            className="w-8 h-8 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center transition-all shadow-md hover:scale-105 shrink-0"
           >
-            <WhatsAppIcon className="w-4 h-4 text-white" />
+            <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
           </a>
         </div>
       </div>

@@ -317,51 +317,54 @@ export const OffersPage: React.FC = () => {
         </h1>
       </div>
 
-      {/* 2. Filtres & Barre de recherche TOUT SUR LA MÊME LIGNE (Fond blanc, Style Image 2) */}
-      <div className="mb-7 pb-4 border-b border-zinc-200 flex items-center gap-2.5 overflow-x-auto scrollbar-none">
-        {/* Carré de recherche compact sur la même ligne (Image 2) */}
-        <div className="relative shrink-0">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher une offre..."
-            className="w-40 sm:w-48 h-8.5 pl-8 pr-3 text-xs rounded-lg border border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#e10600] transition-colors shadow-xs"
-          />
+      {/* 2. Filtres & Barre de recherche minimalistes et responsives */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+        {/* Pills de filtres responsives défilables */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 -mx-4 px-4 md:mx-0 md:px-0">
+          {[
+            { id: 'all', label: `Toutes (${vehicles.filter(v => v.is_offer || v.is_featured).length})` },
+            { id: 'exclusive', label: `VIP Exclusif (${exclusiveCount})`, isSpecial: true },
+            { id: 'electric', label: 'Électrique & Hybride' },
+            { id: 'suv', label: 'SUV' },
+            { id: 'sedan', label: 'Berlines' },
+          ].map((tab) => {
+            const isActive = selectedFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedFilter(tab.id as any)}
+                className={`h-8 px-3.5 text-xs font-medium rounded-full transition-all inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
+                  isActive
+                    ? 'bg-[#e10600] text-white font-semibold shadow-xs'
+                    : tab.isSpecial
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:border-amber-500'
+                    : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white border border-transparent hover:border-zinc-300 dark:hover:border-zinc-700'
+                }`}
+              >
+                {tab.isSpecial && <Sparkles className="w-3 h-3 text-amber-500" />}
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Boutons de filtres simplifiés et plus petits sur la même ligne (Image 2) */}
-        {[
-          { id: 'all', label: `Toutes les offres (${vehicles.filter(v => v.is_offer || v.is_featured).length})` },
-          { id: 'exclusive', label: `Offres Exclusives VIP (${exclusiveCount})`, isSpecial: true },
-          { id: 'electric', label: 'Électriques & Hybrides' },
-          { id: 'suv', label: 'SUV & Baroudeurs' },
-          { id: 'sedan', label: 'Berlines de Prestige' },
-        ].map((tab) => {
-          const isActive = selectedFilter === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedFilter(tab.id as any)}
-              className={`h-8.5 px-3.5 text-[11px] font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-xs ${
-                isActive
-                  ? 'bg-[#e10600] text-white'
-                  : tab.isSpecial
-                  ? 'bg-[#f6b704]/10 text-[#d97706] border border-[#f6b704]/40 hover:border-[#f6b704]'
-                  : 'bg-white text-zinc-800 hover:text-black border border-zinc-200'
-              }`}
-            >
-              {tab.isSpecial && <Sparkles className="w-3 h-3 text-[#f6b704]" />}
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+        {/* Barre de recherche compacte & compteur */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="relative flex-1 sm:w-56">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher modèle, marque..."
+              className="w-full h-8 pl-8 pr-3 text-xs rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-[#e10600] transition-colors"
+            />
+          </div>
 
-        {/* Compteur discret à droite sur la même ligne */}
-        <span className="text-xs font-mono text-zinc-500 shrink-0 ml-auto pl-2 whitespace-nowrap">
-          <strong className="text-[var(--fg)] font-semibold">{offerVehicles.length}</strong> modèles disponibles
-        </span>
+          <span className="text-[11px] font-mono text-zinc-500 hidden sm:inline whitespace-nowrap">
+            <strong className="text-[var(--fg)] font-semibold">{offerVehicles.length}</strong> dispo
+          </span>
+        </div>
       </div>
 
       {/* 3. Première tranche de véhicules (2 premières rangées = 6 véhicules style Image 3) */}

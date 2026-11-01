@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Vehicle } from '../types';
 import { Link } from '../router/Router';
 import { buildVehicleWhatsAppUrl } from '../config/dealership';
 import { getVehiclePriceInfo } from '../lib/priceUtils';
+import { InterestModal } from './InterestModal';
 
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
@@ -19,93 +20,112 @@ interface VehicleCardProps {
 }
 
 export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const mainImage = vehicle.images?.[0] || '/assets/cars/hero_dealership_car_1793116464643.jpg';
   const priceInfo = getVehiclePriceInfo(vehicle);
   const waVehicleUrl = buildVehicleWhatsAppUrl(vehicle);
 
   return (
-    <article className="group relative rounded-2xl sm:rounded-3xl bg-white dark:bg-[#141416] border border-zinc-200/90 dark:border-zinc-800 p-3.5 sm:p-5 lg:p-6 flex flex-col items-center text-center justify-between min-h-[340px] sm:min-h-[390px] transition-all duration-300 shadow-2xs hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700">
-      {/* 1. Header du bloc : Marque, Modèle en sans-serif élégant, Badges sans bleu */}
-      <div className="w-full flex flex-col items-center">
-        {/* Marque */}
-        <span className="font-heading text-[10px] sm:text-xs tracking-wider uppercase text-zinc-500 font-semibold mb-0.5">
-          {vehicle.brand}
-        </span>
-
-        {/* Titre du modèle */}
-        <Link to={`/vehicule/${vehicle.id}`} className="focus:outline-none block w-full">
-          <h3 className="font-heading font-bold text-sm sm:text-base lg:text-lg text-zinc-950 dark:text-white leading-tight line-clamp-1 mb-1.5 tracking-tight hover:text-[#e10600] transition-colors">
-            {vehicle.model}
-          </h3>
-        </Link>
-
-        {/* Badges horizontaux centrés */}
-        <div className="flex flex-wrap items-center justify-center gap-1 mb-1.5">
-          <span className="bg-[#e10600] text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-2xs">
-            0 km
+    <>
+      <article className="group relative rounded-none bg-white dark:bg-[#141416] border border-zinc-200/90 dark:border-zinc-800 p-3 sm:p-4 lg:p-5 flex flex-col items-center text-center justify-between min-h-[340px] sm:min-h-[380px] transition-all duration-300 shadow-2xs hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700">
+        {/* 1. Header du bloc : Marque, Modèle en sans-serif élégant, Badges carrés */}
+        <div className="w-full flex flex-col items-center">
+          {/* Marque */}
+          <span className="font-heading text-[10px] sm:text-xs tracking-wider uppercase text-zinc-500 font-semibold mb-0.5">
+            {vehicle.brand}
           </span>
-          <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded uppercase tracking-wider">
-            {vehicle.fuel || vehicle.type}
-          </span>
-          {vehicle.year && (
-            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700 text-[9px] font-mono px-1.5 py-0.5 rounded">
-              {vehicle.year}
-            </span>
-          )}
-        </div>
-      </div>
 
-      {/* 2. Photo du véhicule centrée */}
-      <Link
-        to={`/vehicule/${vehicle.id}`}
-        className="w-full my-2 flex-1 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-300"
-      >
-        <div className="w-full h-28 sm:h-36 lg:h-40 flex items-center justify-center">
-          <img
-            src={mainImage}
-            alt={`${vehicle.brand} ${vehicle.model} 0 km`}
-            loading="lazy"
-            className="max-h-full max-w-full object-contain filter drop-shadow-sm"
-            onError={(e) => {
-              e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
-            }}
-          />
-        </div>
-      </Link>
-
-      {/* 3. Zone inférieure : Prix + Boutons d'action */}
-      <div className="w-full mt-1 pt-1.5 flex flex-col items-center">
-        {/* Prix toujours affiché au centre */}
-        <div className="mb-2 text-center">
-          <span className="text-[10px] text-zinc-500 font-light block leading-none mb-0.5">
-            à partir de
-          </span>
-          <span className="font-heading font-bold text-sm sm:text-base lg:text-lg text-zinc-950 dark:text-white tracking-tight">
-            {priceInfo.displayPrice}
-          </span>
-        </div>
-
-        {/* Bloc d'actions : Bouton En savoir plus + WhatsApp */}
-        <div className="w-full flex items-center justify-center gap-1.5 pt-1">
-          <Link
-            to={`/vehicule/${vehicle.id}`}
-            className="flex-1 py-1.5 sm:py-2 px-3 bg-[#e10600] hover:bg-[#c30500] text-white text-[11px] sm:text-xs font-semibold rounded-full flex items-center justify-center transition-all shadow-xs"
-          >
-            <span>Détails</span>
+          {/* Titre du modèle */}
+          <Link to={`/vehicule/${vehicle.id}`} className="focus:outline-none block w-full">
+            <h3 className="font-heading font-bold text-sm sm:text-base lg:text-lg text-zinc-950 dark:text-white leading-tight line-clamp-1 mb-1.5 tracking-tight hover:text-[#e10600] transition-colors">
+              {vehicle.model}
+            </h3>
           </Link>
 
-          <a
-            href={waVehicleUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Acheter ou commander ${vehicle.brand} ${vehicle.model} sur WhatsApp`}
-            title="Contacter par WhatsApp avec les détails de ce modèle"
-            className="w-8 h-8 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center transition-all shadow-md hover:scale-105 shrink-0"
-          >
-            <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
-          </a>
+          {/* Badges horizontaux carrés centrés */}
+          <div className="flex flex-wrap items-center justify-center gap-1 mb-1.5">
+            <span className="bg-[#e10600] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider shadow-2xs">
+              0 km
+            </span>
+            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700 text-[9px] sm:text-[10px] font-medium px-1.5 py-0.5 rounded-none uppercase tracking-wider">
+              {vehicle.fuel || vehicle.type}
+            </span>
+            {vehicle.year && (
+              <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700 text-[9px] font-mono px-1.5 py-0.5 rounded-none">
+                {vehicle.year}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </article>
+
+        {/* 2. Photo du véhicule centrée */}
+        <Link
+          to={`/vehicule/${vehicle.id}`}
+          className="w-full my-2 flex-1 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-300 rounded-none"
+        >
+          <div className="w-full h-28 sm:h-36 lg:h-40 flex items-center justify-center">
+            <img
+              src={mainImage}
+              alt={`${vehicle.brand} ${vehicle.model} 0 km`}
+              loading="lazy"
+              className="max-h-full max-w-full object-contain filter drop-shadow-sm rounded-none"
+              onError={(e) => {
+                e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+              }}
+            />
+          </div>
+        </Link>
+
+        {/* 3. Zone inférieure : Prix + Bouton 'Je suis intéressé' & WhatsApp */}
+        <div className="w-full mt-1 pt-1.5 flex flex-col items-center">
+          {/* Prix toujours affiché au centre */}
+          <div className="mb-2 text-center">
+            <span className="text-[10px] text-zinc-500 font-light block leading-none mb-0.5">
+              à partir de
+            </span>
+            <span className="font-heading font-bold text-sm sm:text-base lg:text-lg text-zinc-950 dark:text-white tracking-tight">
+              {priceInfo.displayPrice}
+            </span>
+          </div>
+
+          {/* Bloc d'actions carré : Je suis intéressé (Modal) + WhatsApp */}
+          <div className="w-full flex items-center justify-center gap-1.5 pt-1">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="flex-1 py-2 px-2.5 bg-[#e10600] hover:bg-[#c30500] text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-none flex items-center justify-center transition-all shadow-xs cursor-pointer truncate"
+            >
+              <span>Je suis intéressé</span>
+            </button>
+
+            <a
+              href={waVehicleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Acheter ou commander ${vehicle.brand} ${vehicle.model} sur WhatsApp`}
+              title="Contacter par WhatsApp avec les détails de ce modèle"
+              className="h-8 px-2.5 rounded-none bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center gap-1 transition-all shadow-sm shrink-0 cursor-pointer text-xs font-bold"
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
+              <span className="hidden sm:inline text-[10px] uppercase font-bold">WA</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      {/* Modal Popup 'Je suis intéressé' */}
+      <InterestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        vehicle={{
+          id: vehicle.id,
+          brand: vehicle.brand,
+          model: vehicle.model,
+          image: mainImage,
+          price: priceInfo.displayPrice,
+          fuel: vehicle.fuel
+        }}
+      />
+    </>
   );
 };

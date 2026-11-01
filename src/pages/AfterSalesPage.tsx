@@ -117,36 +117,36 @@ export const AfterSalesPage: React.FC = () => {
             Chez IPM MOTORS, l’acquisition d’un véhicule 0 km s’accompagne d’un suivi rigoureux. Nous assurons la garantie constructeur, l'entretien certifié et les démarches administratives à Abidjan.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-7">
+          <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 mt-7 max-w-lg mx-auto w-full">
             <a
               href={waGeneralUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="pill-btn inline-flex items-center gap-2.5 px-6 py-3 bg-[#e10600] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#e10600]/25 hover:bg-[#c30500] hover:scale-102 transition-all cursor-pointer"
+              className="flex-1 py-3 px-3 sm:px-5 bg-[#e10600] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#e10600]/25 hover:bg-[#c30500] rounded-none flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer truncate"
             >
-              <MessageCircle className="w-4 h-4" />
-              <span>Assistance WhatsApp directe</span>
+              <MessageCircle className="w-4 h-4 shrink-0" />
+              <span className="truncate">Assistance WhatsApp</span>
             </a>
             <a
               href={`tel:${DEALERSHIP_CONFIG.phone}`}
-              className="pill-btn inline-flex items-center gap-2.5 px-6 py-3 bg-zinc-100 text-zinc-900 border border-zinc-300 text-xs sm:text-sm font-medium hover:border-zinc-500 transition-all cursor-pointer"
+              className="flex-1 py-3 px-3 sm:px-5 bg-zinc-100 text-zinc-900 border border-zinc-300 text-xs sm:text-sm font-semibold hover:border-zinc-500 rounded-none flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer truncate"
             >
-              <Phone className="w-4 h-4 text-[#e10600]" />
-              <span>{DEALERSHIP_CONFIG.phone}</span>
+              <Phone className="w-4 h-4 text-[#e10600] shrink-0" />
+              <span className="truncate">{DEALERSHIP_CONFIG.phone}</span>
             </a>
           </div>
         </div>
       </section>
 
-      {/* 2. ENGAGEMENTS SAV & GARANTIE — 3 SECTIONS FULL-BLEED (BORD À BORD ÉCRAN, CONTENU CENTRÉ MAX 1100PX) */}
+      {/* 2. ENGAGEMENTS SAV & GARANTIE — 3 SECTIONS FULL-BLEED AVEC IMAGES DÉFINIES DEPUIS L'ADMIN */}
       <div className="w-full space-y-0">
         {/* ENGAGEMENT 01 — Garantie Constructeur Officielle (Full-Bleed Fond Blanc) */}
         {sec1 && (
-          <section className="full-bleed bg-white text-zinc-950 py-14 sm:py-20 border-t border-zinc-100">
-            <div className="full-bleed__inner">
+          <section className="full-bleed bg-white text-zinc-950 py-12 sm:py-16 border-t border-zinc-100">
+            <div className="full-bleed__inner max-w-[1100px] mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-                <div className="order-2 md:order-1 space-y-4 sm:space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-[#e10600] text-[11px] font-bold tracking-wider uppercase">
+                <div className="order-2 md:order-1 space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-red-50 border border-red-200 text-[#e10600] text-[11px] font-bold tracking-wider uppercase">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>{sec1.badge || 'Engagement 01'}</span>
                   </div>
@@ -156,29 +156,31 @@ export const AfterSalesPage: React.FC = () => {
                   <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
                     {sec1.subtitle}
                   </p>
-                  <ul className="space-y-3 pt-2">
+                  <ul className="space-y-2.5 pt-2">
                     {sec1.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
+                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-800">
                         <CheckCircle2 className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
                         <span>{point}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
+
+                {/* Image définie depuis l'admin */}
                 <div className="order-1 md:order-2">
-                  <div className="relative group overflow-hidden rounded-2xl shadow-lg border border-zinc-200 bg-zinc-100 aspect-[16/10]">
+                  <div className="relative group overflow-hidden rounded-none shadow-md border border-zinc-200 bg-zinc-100 aspect-[16/10]">
                     <img
                       src={sec1.image || savDealImg}
                       alt={sec1.title}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-4 left-5 right-5 text-white">
-                      <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-3 left-4 right-4 text-white">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-white/90 block">
                         {sec1.locationBadge || 'Cocody Abidjan'}
                       </span>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
                         {sec1.caption || 'Garantie constructeur & remise du carnet d’origine'}
                       </p>
                     </div>
@@ -191,30 +193,32 @@ export const AfterSalesPage: React.FC = () => {
 
         {/* ENGAGEMENT 02 — Ateliers Certifiés & Pièces 100% OEM (Full-Bleed Fond #0f172a Slate Sombre) */}
         {sec2 && (
-          <section className="full-bleed bg-[#0f172a] text-white py-14 sm:py-20 shadow-md">
-            <div className="full-bleed__inner">
+          <section className="full-bleed bg-[#0f172a] text-white py-12 sm:py-16 shadow-md">
+            <div className="full-bleed__inner max-w-[1100px] mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                {/* Image définie depuis l'admin */}
                 <div className="order-1">
-                  <div className="relative group overflow-hidden rounded-2xl shadow-xl border border-slate-700 bg-slate-800 aspect-[16/10]">
+                  <div className="relative group overflow-hidden rounded-none shadow-md border border-slate-700 bg-slate-800 aspect-[16/10]">
                     <img
                       src={sec2.image || savWorkshopImg}
                       alt={sec2.title}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-4 left-5 right-5 text-white">
-                      <span className="text-[11px] uppercase tracking-wider font-bold text-cyan-400">
+                    <div className="absolute bottom-3 left-4 right-4 text-white">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-cyan-400 block">
                         {sec2.locationBadge || 'Diagnostic Expert & Pièces OEM'}
                       </span>
-                      <p className="text-sm font-semibold text-white">
-                        {sec2.caption || 'Techniciens ivoiriens certifiés & valises de pointe'}
+                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                        {sec2.caption || 'Techniciens certifiés & valises diagnostiques officielles'}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="order-2 space-y-4 sm:space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold tracking-wider uppercase">
+
+                <div className="order-2 space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold tracking-wider uppercase">
                     <Wrench className="w-3.5 h-3.5" />
                     <span>{sec2.badge || 'Engagement 02'}</span>
                   </div>
@@ -224,9 +228,9 @@ export const AfterSalesPage: React.FC = () => {
                   <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
                     {sec2.subtitle}
                   </p>
-                  <ul className="space-y-3 pt-2">
+                  <ul className="space-y-2.5 pt-2">
                     {sec2.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-200">
+                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200">
                         <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
                         <span>{point}</span>
                       </li>
@@ -238,13 +242,13 @@ export const AfterSalesPage: React.FC = () => {
           </section>
         )}
 
-        {/* ENGAGEMENT 03 — Immatriculation & Clés en Main (Full-Bleed Fond Blanc Pur & Nouvelle Image CI) */}
+        {/* ENGAGEMENT 03 — Immatriculation & Clés en Main (Full-Bleed Fond Blanc Pur) */}
         {sec3 && (
-          <section className="full-bleed bg-zinc-50/80 text-zinc-950 py-14 sm:py-20 border-t border-b border-zinc-200">
-            <div className="full-bleed__inner">
+          <section className="full-bleed bg-zinc-50/80 text-zinc-950 py-12 sm:py-16 border-t border-b border-zinc-200">
+            <div className="full-bleed__inner max-w-[1100px] mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-                <div className="order-2 md:order-1 space-y-4 sm:space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold tracking-wider uppercase">
+                <div className="order-2 md:order-1 space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold tracking-wider uppercase">
                     <FileCheck2 className="w-3.5 h-3.5" />
                     <span>{sec3.badge || 'Engagement 03'}</span>
                   </div>
@@ -254,29 +258,31 @@ export const AfterSalesPage: React.FC = () => {
                   <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
                     {sec3.subtitle}
                   </p>
-                  <ul className="space-y-3 pt-2">
+                  <ul className="space-y-2.5 pt-2">
                     {sec3.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-800">
+                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-800">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                         <span>{point}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
+
+                {/* Image définie depuis l'admin */}
                 <div className="order-1 md:order-2">
-                  <div className="relative group overflow-hidden rounded-2xl shadow-lg border border-zinc-200 bg-white aspect-[16/10] flex items-center justify-center p-2">
+                  <div className="relative group overflow-hidden rounded-none shadow-md border border-zinc-200 bg-white aspect-[16/10] flex items-center justify-center p-2">
                     <img
-                      src={sec3.image || '/public/assets/aistudio/E_change_de_cle_s_et_plaque_ivoirienne_e24c6ee3.png'}
+                      src={sec3.image || savKeysImg}
                       alt={sec3.title}
                       loading="lazy"
-                      className="w-full h-full object-contain group-hover:scale-103 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none rounded-2xl" />
-                    <div className="absolute bottom-4 left-5 right-5 text-white">
-                      <span className="text-[11px] uppercase tracking-wider font-bold text-white/90">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-3 left-4 right-4 text-white">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-white/90 block">
                         {sec3.locationBadge || 'Guichet Unique Automobile'}
                       </span>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
                         {sec3.caption || 'Carte grise ivoirienne, plaques homologuées & clés remises en main propre'}
                       </p>
                     </div>

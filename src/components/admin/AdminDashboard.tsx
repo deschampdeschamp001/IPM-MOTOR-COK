@@ -157,9 +157,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   const [bannerConfig, setBannerConfig] = useState<ExclusiveBannerConfig>(() => getExclusiveBannerConfig());
   const [isSavingBanner, setIsSavingBanner] = useState(false);
 
-  // Mobile navigation Plus modal
-  const [isMobileAdminPlusOpen, setIsMobileAdminPlusOpen] = useState(false);
-
   // Vehicles state
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('ipm_cached_vehicles') : null;
@@ -1173,31 +1170,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
             </button>
           </div>
 
-          {/* Version Mobile & Tablette (< xl) : EXACTEMENT 5 BOUTONS DOCK */}
-          <div className="xl:hidden w-full">
-            <div className="grid grid-cols-5 gap-1.5 p-1.5 rounded-2xl bg-[#141414] border border-[#2A2A2A] shadow-md">
+          {/* Barre de navigation mobile pour l'Admin (< xl) : Barre de navigation fluide contenant toutes les options */}
+          <div className="xl:hidden w-full sticky top-[68px] z-20 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-2 px-2 bg-[#141414]/95 backdrop-blur-md border border-[#2A2A2A] rounded-2xl shadow-lg">
               {/* 1. Catalogue */}
               <button
                 type="button"
                 onClick={() => setActiveTab('vehicles')}
-                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
-                  activeTab === 'vehicles' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'vehicles' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
                 }`}
               >
-                <Car className="w-4 h-4" />
-                <span className="text-[10px] font-semibold truncate max-w-full">Catalogue</span>
+                <Car className="w-4 h-4 shrink-0" />
+                <span>Catalogue ({vehicles.length})</span>
               </button>
 
               {/* 2. Marques */}
               <button
                 type="button"
                 onClick={() => setActiveTab('brands')}
-                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
-                  activeTab === 'brands' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'brands' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
                 }`}
               >
-                <Tags className="w-4 h-4" />
-                <span className="text-[10px] font-semibold truncate max-w-full">Marques</span>
+                <Tags className="w-4 h-4 shrink-0" />
+                <span>Marques ({brands.length})</span>
               </button>
 
               {/* 3. Actualités */}
@@ -1207,12 +1204,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                   setActiveTab('news');
                   loadNews();
                 }}
-                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
-                  activeTab === 'news' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'news' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
                 }`}
               >
-                <Newspaper className="w-4 h-4" />
-                <span className="text-[10px] font-semibold truncate max-w-full">Actualités</span>
+                <Newspaper className="w-4 h-4 shrink-0" />
+                <span>Actualités ({newsList.length})</span>
               </button>
 
               {/* 4. Demandes */}
@@ -1222,142 +1219,78 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                   setActiveTab('leads');
                   loadLeads();
                 }}
-                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
-                  activeTab === 'leads' ? 'bg-[#E10600] text-white' : 'text-zinc-400 hover:text-white'
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'leads' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
                 }`}
               >
-                <Users className="w-4 h-4" />
-                <span className="text-[10px] font-semibold truncate max-w-full">Demandes</span>
+                <Users className="w-4 h-4 shrink-0" />
+                <span>Demandes ({leads.length})</span>
               </button>
 
-              {/* 5. Plus (Bouton avec boite modale) */}
+              {/* 5. Newsletter */}
               <button
                 type="button"
-                onClick={() => setIsMobileAdminPlusOpen(true)}
-                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
-                  ['newsletter', 'banner', 'hero', 'testimonials', 'services'].includes(activeTab)
-                    ? 'bg-[#E10600] text-white'
-                    : 'text-zinc-400 hover:text-white'
+                onClick={() => {
+                  setActiveTab('newsletter');
+                  loadSubscribers();
+                }}
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'newsletter' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
                 }`}
               >
-                <MoreHorizontal className="w-4 h-4" />
-                <span className="text-[10px] font-semibold truncate max-w-full">Plus</span>
+                <Mail className="w-4 h-4 shrink-0" />
+                <span>Newsletter ({subscribers.length})</span>
+              </button>
+
+              {/* 6. Diaporama Hero */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('hero')}
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'hero' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
+                }`}
+              >
+                <Layers className="w-4 h-4 shrink-0" />
+                <span>Hero ({heroSlides.length})</span>
+              </button>
+
+              {/* 7. Témoignages */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('testimonials')}
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'testimonials' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
+                }`}
+              >
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                <span>Avis ({testimonialsList.length})</span>
+              </button>
+
+              {/* 8. Services & SAV */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('services')}
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'services' ? 'bg-[#E10600] text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4 shrink-0" />
+                <span>Services ({servicesSections.length})</span>
+              </button>
+
+              {/* 9. Bandeau WhatsApp */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('banner')}
+                className={`shrink-0 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                  activeTab === 'banner' ? 'bg-[#032b17] text-[#f6b704] border border-[#f6b704]/40 shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-[#1E1E1E]'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 shrink-0 text-[#f6b704]" />
+                <span>Bandeau WA</span>
               </button>
             </div>
           </div>
-
-          {/* Boite modale pour le 5ème bouton (Plus) sur mobile & tablette */}
-          {isMobileAdminPlusOpen && (
-            <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex flex-col justify-end xl:hidden">
-              <div className="bg-[#141414] border-t border-[#2A2A2A] rounded-t-3xl p-5 max-h-[85vh] overflow-y-auto space-y-2 shadow-2xl animate-in slide-in-from-bottom duration-200">
-                <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-3" />
-                <div className="flex items-center justify-between pb-3 border-b border-[#2A2A2A] mb-3">
-                  <span className="font-heading font-bold text-sm text-white">Menu d'administration</span>
-                  <button
-                    onClick={() => setIsMobileAdminPlusOpen(false)}
-                    className="p-1.5 text-zinc-400 hover:text-white"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('newsletter');
-                      loadSubscribers();
-                      setIsMobileAdminPlusOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
-                      activeTab === 'newsletter' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
-                    }`}
-                  >
-                    <Mail className="w-4 h-4 text-zinc-400" />
-                    <span>Newsletter ({subscribers.length})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('banner');
-                      setIsMobileAdminPlusOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
-                      activeTab === 'banner' ? 'bg-[#032b17] text-[#f6b704] border border-[#f6b704]/40' : 'text-zinc-300 hover:bg-[#1E1E1E]'
-                    }`}
-                  >
-                    <Sparkles className="w-4 h-4 text-[#f6b704]" />
-                    <span>Bandeau Exclusif WhatsApp</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('hero');
-                      setIsMobileAdminPlusOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
-                      activeTab === 'hero' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
-                    }`}
-                  >
-                    <Layers className="w-4 h-4 text-zinc-400" />
-                    <span>Diaporama Hero ({heroSlides.length})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('testimonials');
-                      setIsMobileAdminPlusOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
-                      activeTab === 'testimonials' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
-                    }`}
-                  >
-                    <MessageSquare className="w-4 h-4 text-zinc-400" />
-                    <span>Témoignages ({testimonialsList.length})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('services');
-                      setIsMobileAdminPlusOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors text-left ${
-                      activeTab === 'services' ? 'bg-[#E10600] text-white' : 'text-zinc-300 hover:bg-[#1E1E1E]'
-                    }`}
-                  >
-                    <ShieldCheck className="w-4 h-4 text-zinc-400" />
-                    <span>Services & SAV ({servicesSections.length})</span>
-                  </button>
-                </div>
-
-                <div className="pt-3 border-t border-[#2A2A2A] space-y-2">
-                  <a
-                    href="/"
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#1E1E1E] hover:bg-[#252525] text-zinc-300 text-xs font-semibold flex items-center justify-center gap-2"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Retour au site</span>
-                  </a>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMobileAdminPlusOpen(false);
-                      handleLogout();
-                    }}
-                    className="w-full py-2.5 px-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 text-xs font-semibold flex items-center justify-center gap-2 border border-red-800/40 cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Se déconnecter</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {activeTab === 'testimonials' && (
             <div className="flex items-center gap-2">

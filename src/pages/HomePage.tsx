@@ -81,14 +81,6 @@ const SERVICES_DATA = [
     description: 'Garantie constructeur 3 à 8 ans | Dédouanement certifié | Immatriculation CI | Remise officielle',
     link: '/apres-vente',
     cta: 'Nos engagements SAV'
-  },
-  {
-    id: 's5',
-    type: 'vip',
-    title: 'Solutions VIP & Leasing',
-    description: 'Accompagnement bancaire | Partenaires leasing CI | Démarches simplifiées | Livraison VIP à domicile',
-    link: '/contact',
-    cta: 'Contacter un conseiller'
   }
 ];
 
@@ -99,16 +91,6 @@ export const HomePage: React.FC = () => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMsg, setNewsletterMsg] = useState('');
-
-  // Services parallax carousel state (matching Image 4, défilement automatique fluide sans pause au survol)
-  const [serviceSlideIndex, setServiceSlideIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setServiceSlideIndex((prev) => (prev + 1) % SERVICES_DATA.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
 
   // News carousel slide state (3 articles sur PC, pagination 1 2 3 4 5)
   const [newsSlideIndex, setNewsSlideIndex] = useState(0);
@@ -237,23 +219,20 @@ export const HomePage: React.FC = () => {
       {/* 6. SERVICES (EXACT DESIGN IMAGE 4 : TITRE ROUGE AVEC SOULIGNEMENT JAUNE, BLOCS DORÉS #f59e0b, ICÔNES BLANCHES & CARROUSEL FLUIDE) */}
       <section className="py-14 sm:py-20 bg-white dark:bg-[#0c0c0e] text-zinc-950 w-full transition-colors border-t border-zinc-200 dark:border-zinc-800">
         <div className="max-w-[1500px] mx-auto px-6 sm:px-12 lg:px-20 xl:px-28">
-          {/* En-tête style Image 4 : "Nos expertises" rouge bordeaux avec barre dorée en-dessous */}
-          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-[#990000] dark:text-red-500 tracking-tight relative inline-block pb-3">
+          {/* En-tête style Image 4 : "Nos expertises" rouge bordeaux avec barre dorée en-dessous (sans sous-titre) */}
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#990000] dark:text-red-500 tracking-tight relative inline-block pb-2.5">
               Nos expertises
               <span className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-[#f59e0b] rounded-full" />
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-3 font-light leading-relaxed">
-              Accompagnement Sur-Mesure — Une expérience haut de gamme pensée pour chaque étape de votre acquisition automobile.
-            </p>
           </div>
 
-          {/* Grille responsive et défilement horizontal parallax sur mobile/tablette (affiche tous les blocs, sans flèches, taille diminuée et minimaliste) */}
-          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-3 sm:gap-4 pb-2 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
-            {SERVICES_DATA.map((service) => (
+          {/* Grille responsive : sur mobile et tablette 2 sur la même ligne et 2 en dessous (grid-cols-2), sur PC les 4 sur la même ligne (lg:grid-cols-4), sans aucun défilement parallaxe */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-full">
+            {SERVICES_DATA.slice(0, 4).map((service) => (
               <div
                 key={service.id}
-                className="w-[230px] sm:w-[250px] md:w-auto shrink-0 snap-start rounded-2xl bg-[#f59e0b] text-white p-5 sm:p-6 flex flex-col justify-between items-center text-center shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 min-h-[300px] sm:min-h-[320px]"
+                className="w-full rounded-none bg-[#f59e0b] text-white p-3.5 sm:p-5 flex flex-col justify-between items-center text-center shadow-xs hover:shadow-md transition-all duration-200 min-h-[220px] sm:min-h-[250px]"
               >
                 <div className="flex flex-col items-center w-full">
                   {/* Icônes blanches pures compactes */}
@@ -355,19 +334,16 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 7. SERVICE APRÈS-VENTE (Fond Blanc pur, espacement réduit & textes sombres nets) */}
-      <section className="py-12 sm:py-16 px-6 sm:px-12 lg:px-20 xl:px-28 2xl:px-36 bg-white text-zinc-950 w-full border-t border-zinc-200">
+      <section className="py-8 sm:py-12 px-4 sm:px-8 lg:px-16 xl:px-24 2xl:px-32 bg-white text-zinc-950 w-full border-t border-zinc-200">
         <div className="max-w-[1500px] mx-auto">
-          {/* En-tête centré */}
-          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-1.5">
+          {/* En-tête centré (sans sous-titre supprimé) */}
+          <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-1">
               Tranquillité d’Esprit
             </span>
-            <h2 className="font-heading font-light text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight mb-2 text-zinc-950">
+            <h2 className="font-heading font-light text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight text-zinc-950">
               Service <span className="font-semibold text-[#e10600]">Après-Vente</span>
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-600 font-light leading-relaxed max-w-2xl mx-auto">
-              Un accompagnement durable pour rouler en toute confiance partout en Côte d’Ivoire.
-            </p>
           </div>
 
           {/* 3 Cartes avec grandes icônes disposées sans contour, espacement équilibré */}
@@ -555,34 +531,22 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* 9. ACTUALITÉS (DESIGN FIDÈLE À L'IMAGE 2 : BADGE DATE ORANGE EN BAS À DROITE DE LA PHOTO, TITRE VERT SOMBRE ET ROTATION FLUIDE) */}
-        <div className="mt-14 sm:mt-18 mb-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-1.5">
-                <span className="w-5 h-[2px] bg-[#e10600]" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[#e10600]">
-                  Actualités & Nouveautés
-                </span>
-              </div>
-              <h2 className="font-heading font-semibold text-2xl sm:text-3xl lg:text-4xl tracking-tight text-[var(--fg)]">
-                Nos Dernières <span className="text-[#e10600]">Actualités</span>
-              </h2>
+        {/* 9. ACTUALITÉS (DESIGN FIDÈLE À L'IMAGE 2 & 3 : BORDURES CARRÉES, PETITE TAILLE, TOUT VOIR À CÔTÉ DES CHIFFRES) */}
+        <div className="mt-10 sm:mt-14 mb-8">
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 mb-1">
+              <span className="w-4 h-[2px] bg-[#e10600]" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#e10600]">
+                Actualités & Nouveautés
+              </span>
             </div>
-
-            <div className="flex items-center gap-3">
-              <Link
-                to="/actualites"
-                className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-[#e10600] hover:text-[#c30500] group"
-              >
-                <span>Tout voir</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
+            <h2 className="font-heading font-semibold text-xl sm:text-3xl tracking-tight text-[var(--fg)]">
+              Nos Dernières <span className="text-[#e10600]">Actualités</span>
+            </h2>
           </div>
 
-          {/* Grille des Actualités : 3 blocs sur PC, défilement horizontal parallax minimaliste sur mobile/tablette */}
-          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-3 -mx-4 px-4 md:mx-0 md:px-0 mb-8">
+          {/* Grille des Actualités minimaliste, bordures carrées, 3 sur mobile défilables */}
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-2 -mx-4 px-4 md:mx-0 md:px-0 mb-6">
             {displayedNews.map((article) => {
               const articleSlug = article.slug || article.id;
               const waArticleUrl = buildWhatsAppUrl(`Bonjour IPM Motors, je souhaite des renseignements suite à votre article : "${article.title}".`);
@@ -591,70 +555,70 @@ export const HomePage: React.FC = () => {
               return (
                 <article
                   key={article.id}
-                  className="w-[250px] sm:w-[280px] md:w-auto shrink-0 snap-start group flex flex-col justify-between bg-white dark:bg-zinc-900/70 rounded-xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:shadow-md transition-all duration-300"
+                  className="w-[200px] sm:w-[240px] md:w-auto shrink-0 snap-start group flex flex-col justify-between bg-white dark:bg-zinc-900/70 rounded-none overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-2xs hover:shadow-md transition-all duration-200"
                 >
                   <div>
-                    {/* Zone Image avec Badge Date en bas à droite (Exact Image 2) */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-zinc-950 rounded-t-xl">
-                      <Link to={`/actualites/${articleSlug}`} className="block w-full h-full">
+                    {/* Zone Image avec Badge Date en bas à droite carré (Exact Image 2) */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-zinc-950 rounded-none">
+                      <Link to={`/actualites/${articleSlug}`} className="block w-full h-full rounded-none">
                         <img
                           src={article.cover_image}
                           alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300 rounded-none"
                           onError={(e) => {
                             e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
                           }}
                         />
                       </Link>
 
-                      {/* Badge Date en bas à droite (Chiffre orange + mois orange exact Image 2 & 3) */}
-                      <div className="absolute bottom-0 right-3 z-10 bg-white shadow-md rounded-t-md px-3 py-1 text-center min-w-[50px] border border-b-0 border-zinc-100">
-                        <span className="block text-lg sm:text-xl font-bold text-[#f39c12] leading-tight">
+                      {/* Badge Date en bas à droite carré */}
+                      <div className="absolute bottom-0 right-2 z-10 bg-white shadow-sm rounded-none px-2 py-0.5 text-center min-w-[42px] border border-b-0 border-zinc-100">
+                        <span className="block text-sm sm:text-base font-bold text-[#f39c12] leading-tight">
                           {day}
                         </span>
-                        <span className="block text-[10px] font-bold text-[#f39c12] uppercase tracking-wider">
+                        <span className="block text-[9px] font-bold text-[#f39c12] uppercase tracking-wider">
                           {month}
                         </span>
                       </div>
 
                       {/* Badge Catégorie discret en haut à gauche */}
-                      <div className="absolute top-2.5 left-2.5 z-10">
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-black/75 backdrop-blur-sm text-white">
+                      <div className="absolute top-2 left-2 z-10">
+                        <span className="px-1.5 py-0.5 rounded-none text-[8px] font-bold tracking-wider uppercase bg-black/75 backdrop-blur-sm text-white">
                           {article.category}
                         </span>
                       </div>
                     </div>
 
                     {/* Titre vert sombre & extrait minimaliste */}
-                    <div className="p-4 pb-2.5">
+                    <div className="p-3 pb-2">
                       <Link to={`/actualites/${articleSlug}`}>
-                        <h3 className="font-heading font-bold text-base sm:text-lg text-[#064e3b] dark:text-emerald-400 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="font-heading font-bold text-xs sm:text-sm text-[#064e3b] dark:text-emerald-400 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
                           {article.title}
                         </h3>
                       </Link>
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400 font-light mt-1.5 line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-light mt-1 line-clamp-2 leading-relaxed">
                         {article.excerpt}
                       </p>
                     </div>
                   </div>
 
-                  {/* Actions au bas de la carte (Minimaliste) */}
-                  <div className="px-4 pb-3.5 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                  {/* Actions au bas de la carte (Minimaliste carré) */}
+                  <div className="px-3 pb-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-1.5">
                     <Link
                       to={`/actualites/${articleSlug}`}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#064e3b] dark:text-emerald-400 hover:underline"
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#064e3b] dark:text-emerald-400 hover:underline"
                     >
                       <span>Lire l'article</span>
-                      <ArrowRight className="w-3 h-3" />
+                      <ArrowRight className="w-2.5 h-2.5" />
                     </Link>
 
                     <a
                       href={waArticleUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-[#064e3b] dark:text-emerald-400 hover:bg-emerald-100 text-[11px] font-semibold transition-all inline-flex items-center gap-1 border border-emerald-200/60 dark:border-emerald-800/40"
+                      className="px-2 py-0.5 rounded-none bg-emerald-50 dark:bg-emerald-950/40 text-[#064e3b] dark:text-emerald-400 hover:bg-emerald-100 text-[10px] font-semibold transition-all inline-flex items-center gap-1 border border-emerald-200/60 dark:border-emerald-800/40"
                     >
-                      <MessageCircle className="w-3 h-3 text-[#25D366]" />
+                      <MessageCircle className="w-2.5 h-2.5 text-[#25D366]" />
                       <span>WhatsApp</span>
                     </a>
                   </div>
@@ -663,26 +627,38 @@ export const HomePage: React.FC = () => {
             })}
           </div>
 
-          {/* Pagination chiffrée style Image 3 (1 2 3 4 5) : Chiffre actif #f39c12, inactifs #064e3b */}
-          <div className="flex items-center justify-center gap-5 sm:gap-7 pt-3 pb-2 select-none">
-            {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(publishedNews.length / 3))) }).map((_, idx) => {
-              const isActive = newsSlideIndex === idx;
-              return (
-                <button
-                  key={idx + 1}
-                  type="button"
-                  onClick={() => setNewsSlideIndex(idx)}
-                  aria-label={`Aller à la page ${idx + 1}`}
-                  className={`text-2xl sm:text-3xl font-bold font-heading transition-all duration-200 cursor-pointer hover:scale-115 ${
-                    isActive
-                      ? 'text-[#f39c12]'
-                      : 'text-[#064e3b] dark:text-emerald-500 hover:text-[#f39c12]'
-                  }`}
-                >
-                  {idx + 1}
-                </button>
-              );
-            })}
+          {/* Pagination chiffrée petite minimaliste (1 2 3 4 5) avec "Tout voir" à côté */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6 pt-3 pb-2 select-none">
+            <div className="flex items-center gap-3 sm:gap-4">
+              {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(publishedNews.length / 3))) }).map((_, idx) => {
+                const isActive = newsSlideIndex === idx;
+                return (
+                  <button
+                    key={idx + 1}
+                    type="button"
+                    onClick={() => setNewsSlideIndex(idx)}
+                    aria-label={`Aller à la page ${idx + 1}`}
+                    className={`text-xs sm:text-sm font-bold font-mono transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'text-[#f39c12] scale-110 underline underline-offset-4'
+                        : 'text-[#064e3b] dark:text-emerald-500 hover:text-[#f39c12]'
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
+            </div>
+
+            <span className="text-zinc-300 dark:text-zinc-700">|</span>
+
+            <Link
+              to="/actualites"
+              className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase text-[#e10600] hover:text-[#c30500] group"
+            >
+              <span>Tout voir</span>
+              <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>

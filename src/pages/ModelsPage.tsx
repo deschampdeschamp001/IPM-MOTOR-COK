@@ -178,35 +178,11 @@ export const ModelsPage: React.FC = () => {
   }, [allBrandNames, brandSearch]);
 
   return (
-    <div className="pt-20 sm:pt-24 lg:pt-24 min-h-screen flex flex-col max-w-[1600px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 xl:px-28 2xl:px-36 pb-16">
+    <div className="pt-4 sm:pt-6 min-h-screen flex flex-col max-w-[1600px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-24 pb-16">
       {/* Barre supérieure compacte fixe avec TITRE CENTRÉ */}
-      <div className="shrink-0 py-4 border-b border-[var(--border)] mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Gauche : Bouton Effacer ou retour */}
-        <div className="w-full sm:w-44 flex items-center justify-between sm:justify-start">
-          {activeFiltersCount > 0 ? (
-            <button
-              onClick={clearAllFilters}
-              className="inline-flex items-center gap-1.5 text-xs text-[#e10600] hover:underline font-medium"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Effacer filtres ({activeFiltersCount})</span>
-            </button>
-          ) : (
-            <span className="text-xs text-[#6b6b72] hidden sm:inline">Catalogue Parc Automobile</span>
-          )}
-
-          {/* Mobile Filter Toggle */}
-          <button
-            onClick={() => setMobileFilterOpen(true)}
-            className="sm:hidden pill-btn px-4 py-2 bg-[var(--card)] text-xs font-semibold flex items-center gap-2 border-0 shadow-sm"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#e10600]" />
-            <span>Filtres {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
-          </button>
-        </div>
-
-        {/* Milieu : Titre et compteur PARFAITEMENT CENTRÉS */}
-        <div className="text-center flex-1">
+      <div className="shrink-0 py-3 sm:py-4 border-b border-[var(--border)] mb-6 flex flex-col gap-3">
+        {/* Titre et compteur PARFAITEMENT CENTRÉS */}
+        <div className="text-center">
           <h1 className="font-heading font-semibold text-xl sm:text-2xl text-[var(--fg)] tracking-tight">
             Modèles Neufs <span className="text-[#e10600]">0 km</span>
           </h1>
@@ -215,24 +191,40 @@ export const ModelsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Droite : Bouton filtre mobile + Tri */}
-        <div className="w-full sm:w-44 flex items-center justify-center sm:justify-end gap-3">
-          {/* Mobile Filter Toggle desktop */}
-          <button
-            onClick={() => setMobileFilterOpen(true)}
-            className="hidden lg:hidden sm:flex pill-btn px-4 py-2 bg-[var(--card)] text-xs font-semibold items-center gap-2 border-0 shadow-sm"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#e10600]" />
-            <span>Filtres {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
-          </button>
+        {/* Ligne d'actions responsive : Filtres à gauche, Tri à droite */}
+        <div className="flex items-center justify-between gap-3 pt-1">
+          {/* Gauche : Bouton Filtre Mobile & Effacer */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileFilterOpen(true)}
+              className="lg:hidden px-3.5 py-1.5 bg-[var(--card)] text-xs font-semibold flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 rounded-none shadow-2xs hover:border-[#e10600] transition-colors cursor-pointer"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#e10600]" />
+              <span>Filtres {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
+            </button>
 
-          {/* Tri */}
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={clearAllFilters}
+                className="inline-flex items-center gap-1 text-xs text-[#e10600] hover:underline font-medium cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Effacer ({activeFiltersCount})</span>
+              </button>
+            )}
+
+            <span className="text-xs text-[#6b6b72] hidden lg:inline">
+              Catalogue Parc Automobile
+            </span>
+          </div>
+
+          {/* Droite : Sélecteur de Tri */}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-[#6b6b72] hidden sm:inline">Trier :</span>
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 rounded-xl bg-[var(--surface)] text-[var(--fg)] text-xs font-medium focus:outline-none border-0"
+              className="px-3 py-1.5 rounded-none bg-[var(--surface)] text-[var(--fg)] text-xs font-medium focus:outline-none border border-zinc-200 dark:border-zinc-800 cursor-pointer"
             >
               <option value="default">Recommandés</option>
               <option value="price-asc">Prix : croissant</option>
@@ -423,17 +415,19 @@ export const ModelsPage: React.FC = () => {
           </div>
         </aside>
 
-        {/* Modal Bottom Sheet pour filtres mobile/tablette */}
+        {/* Modal Bottom Sheet pour filtres mobile/tablette (Au-dessus de la barre de dock, boutons carrés côte à côte) */}
         {mobileFilterOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end lg:hidden">
-            <div className="bg-white dark:bg-[#121214] rounded-t-3xl max-h-[85vh] flex flex-col p-5 overflow-y-auto shadow-2xl">
+            <div className="bg-white dark:bg-[#121214] rounded-t-2xl max-h-[85vh] flex flex-col p-5 pb-24 overflow-y-auto shadow-2xl">
               <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-700 rounded-full mx-auto mb-3" />
               <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-3">
-                <span className="font-heading font-bold text-sm text-zinc-950 dark:text-white">Filtres du Catalogue</span>
+                <span className="font-heading font-bold text-sm text-zinc-950 dark:text-white uppercase tracking-wider">
+                  Filtres du Catalogue
+                </span>
                 <button
                   type="button"
                   onClick={() => setMobileFilterOpen(false)}
-                  className="p-1.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white"
+                  className="p-1.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -453,7 +447,7 @@ export const ModelsPage: React.FC = () => {
                           type="checkbox"
                           checked={selectedMarques.includes(brand)}
                           onChange={() => toggleMarque(brand)}
-                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                          className="rounded-none text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
                         />
                         <span className="truncate">{brand}</span>
                       </label>
@@ -473,7 +467,7 @@ export const ModelsPage: React.FC = () => {
                           type="checkbox"
                           checked={selectedTypes.includes(type)}
                           onChange={() => toggleType(type)}
-                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                          className="rounded-none text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
                         />
                         <span>{type}</span>
                       </label>
@@ -493,7 +487,7 @@ export const ModelsPage: React.FC = () => {
                           type="checkbox"
                           checked={selectedEnergies.includes(eng)}
                           onChange={() => toggleEnergie(eng)}
-                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                          className="rounded-none text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
                         />
                         <span>{eng}</span>
                       </label>
@@ -502,19 +496,19 @@ export const ModelsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Boutons actions mobile */}
-              <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex gap-2">
+              {/* Boutons actions mobile côte à côte carrés Image 4 (parfaitement au-dessus de la barre de navigation) */}
+              <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2 mt-2">
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="py-2.5 px-4 rounded-full border border-zinc-200 dark:border-zinc-700 text-xs font-semibold"
+                  className="py-3 px-5 rounded-none border border-zinc-300 dark:border-zinc-700 text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   Effacer
                 </button>
                 <button
                   type="button"
                   onClick={() => setMobileFilterOpen(false)}
-                  className="flex-1 py-2.5 bg-[#e10600] text-white rounded-full text-xs font-semibold shadow-xs"
+                  className="flex-1 py-3 bg-[#e10600] hover:bg-[#c30500] text-white rounded-none text-xs font-bold uppercase tracking-wider shadow-sm transition-colors cursor-pointer"
                 >
                   Voir les modèles ({filteredVehicles.length})
                 </button>

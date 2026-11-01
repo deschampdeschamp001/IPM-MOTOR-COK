@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from '../router/Router';
 import { ModelsPage } from './ModelsPage';
 import { OffersPage } from './OffersPage';
-import { Car, Tag, Sparkles } from 'lucide-react';
+import { Car, Tag } from 'lucide-react';
 
 export const VehiclesHubPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,9 +27,9 @@ export const VehiclesHubPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)]">
-      {/* Sélecteur segmenté en haut : Nos Modèles à gauche | Nos Offres à droite */}
-      <div className="pt-20 sm:pt-24 pb-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0c0c0e]/90 backdrop-blur-md sticky top-12 z-30">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] pt-14 sm:pt-16">
+      {/* Sélecteur segmenté en haut : Nos Modèles à gauche | Nos Offres à droite (Bien calé sous la barre fixe z-30 sans chevauchement) */}
+      <div className="py-2.5 sm:py-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#0c0c0e]/95 backdrop-blur-md sticky top-14 sm:top-14 z-30 shadow-2xs">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-8 flex items-center justify-center">
           <div className="inline-flex p-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-xs max-w-md w-full">
             {/* Bouton gauche : Nos Modèles */}

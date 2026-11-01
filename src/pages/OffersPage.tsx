@@ -3,6 +3,7 @@ import { useData } from '../context/DataContext';
 import { Link } from '../router/Router';
 import { buildVehicleWhatsAppUrl } from '../config/dealership';
 import { getVehiclePriceInfo } from '../lib/priceUtils';
+import { InterestModal } from '../components/InterestModal';
 import {
   Search,
   Heart,
@@ -55,6 +56,7 @@ export const OffersPage: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'exclusive' | 'electric' | 'suv' | 'sedan'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [leadVehicle, setLeadVehicle] = useState<any | null>(null);
 
   useEffect(() => {
     document.title = 'Nos Offres Privilège 0 km | IPM Motors Abidjan';
@@ -142,25 +144,25 @@ export const OffersPage: React.FC = () => {
     return (
       <div
         key={vehicle.id}
-        className="rounded-2xl border border-zinc-200/80 bg-white overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-lg hover:border-zinc-300 transition-all duration-300 group"
+        className="rounded-none border border-zinc-200/90 bg-white dark:bg-[#141416] overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-md transition-all duration-300 group"
       >
         <div>
           {/* 1. PHOTO DU VÉHICULE AVEC BADGES PURS */}
           <Link
             to={`/vehicule/${vehicle.id}`}
-            className="block relative aspect-[16/10] bg-zinc-100 overflow-hidden"
+            className="block relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden rounded-none"
           >
             <img
               src={mainImg}
               alt={`${vehicle.brand} ${vehicle.model}`}
-              className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500 ease-out"
+              className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500 ease-out rounded-none"
               onError={(e) => {
                 e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
               }}
             />
 
             {/* Pastille discrète de logo de marque en bas à droite */}
-            <div className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 backdrop-blur-xs shadow-md border border-zinc-100 flex items-center justify-center p-1.5 z-10">
+            <div className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-none bg-white/95 dark:bg-black/90 backdrop-blur-xs shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center p-1 z-10">
               {brandLogo ? (
                 <img
                   src={brandLogo}
@@ -171,19 +173,19 @@ export const OffersPage: React.FC = () => {
                   }}
                 />
               ) : (
-                <span className="text-[9px] font-bold text-zinc-800 uppercase font-mono">
+                <span className="text-[9px] font-bold text-zinc-800 dark:text-zinc-200 uppercase font-mono">
                   {vehicle.brand.slice(0, 2)}
                 </span>
               )}
             </div>
 
             {/* Badges 0 KM et VIP en haut à gauche */}
-            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-zinc-950/85 text-white backdrop-blur-xs shadow-xs">
+            <div className="absolute top-2.5 left-2.5 flex items-center gap-1">
+              <span className="px-2 py-0.5 rounded-none text-[9px] font-bold uppercase tracking-wider bg-zinc-950/85 text-white backdrop-blur-xs shadow-xs">
                 0 km Neuf
               </span>
               {vehicle.is_exclusive && (
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#f6b704] text-zinc-950 shadow-xs">
+                <span className="px-2 py-0.5 rounded-none text-[9px] font-black uppercase tracking-wider bg-[#f6b704] text-zinc-950 shadow-xs">
                   Privilège
                 </span>
               )}
@@ -191,17 +193,17 @@ export const OffersPage: React.FC = () => {
           </Link>
 
           {/* 2. DÉTAILS TEXTUELS DU VÉHICULE */}
-          <div className="p-4 sm:p-5">
+          <div className="p-3.5 sm:p-4">
             {/* Titre : Marque Modèle Année */}
             <Link to={`/vehicule/${vehicle.id}`}>
-              <h3 className="font-heading text-sm sm:text-base font-bold text-zinc-900 truncate mb-1 hover:text-[#e10600] transition-colors leading-snug">
+              <h3 className="font-heading text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate mb-1 hover:text-[#e10600] transition-colors leading-snug">
                 {vehicle.brand} {vehicle.model} {vehicle.year || ''}
               </h3>
             </Link>
 
             {/* Ligne Prix & Actions Favoris */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-heading font-black text-lg sm:text-xl text-zinc-950 tracking-tight">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-heading font-black text-base sm:text-lg text-zinc-950 dark:text-white tracking-tight">
                 {priceText}
               </span>
               <div className="flex items-center gap-1.5 text-zinc-400">
@@ -209,7 +211,7 @@ export const OffersPage: React.FC = () => {
                   type="button"
                   onClick={(e) => handleShare(vehicle, e)}
                   title="Partager cette offre"
-                  className="p-1 rounded-full hover:bg-zinc-100 hover:text-zinc-700 transition-colors cursor-pointer"
+                  className="p-1 hover:text-zinc-700 transition-colors cursor-pointer"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                 </button>
@@ -217,7 +219,7 @@ export const OffersPage: React.FC = () => {
                   type="button"
                   onClick={(e) => toggleFavorite(vehicle.id, e)}
                   title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                  className={`p-1 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer ${
+                  className={`p-1 transition-colors cursor-pointer ${
                     isFav ? 'text-red-500 fill-red-500' : 'hover:text-red-500'
                   }`}
                 >
@@ -227,41 +229,49 @@ export const OffersPage: React.FC = () => {
             </div>
 
             {/* Spécifications techniques minimalistes */}
-            <div className="flex items-center justify-between py-2 border-t border-zinc-100 text-[11px] text-zinc-500">
+            <div className="flex items-center justify-between py-1.5 border-t border-zinc-100 dark:border-zinc-800 text-[10px] text-zinc-500">
               <div className="flex items-center gap-1 truncate">
-                <Gauge className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <Gauge className="w-3 h-3 text-zinc-400 shrink-0" />
                 <span className="truncate">{vehicle.transmission || 'Automatique'}</span>
               </div>
               <span className="text-zinc-300">•</span>
               <div className="flex items-center gap-1 truncate">
-                <Fuel className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <Fuel className="w-3 h-3 text-zinc-400 shrink-0" />
                 <span className="truncate">{vehicle.fuel || 'Essence'}</span>
               </div>
               <span className="text-zinc-300">•</span>
-              <div className="flex items-center gap-1 shrink-0 font-medium text-emerald-700">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="flex items-center gap-1 shrink-0 font-medium text-emerald-700 dark:text-emerald-400">
+                <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
                 <span>Garantie 0 km</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3. Boutons d'action : Fiche technique + WhatsApp */}
-        <div className="px-4 pb-4 pt-1 flex items-center gap-2">
-          <Link
-            to={`/vehicule/${vehicle.id}`}
-            className="flex-1 py-2 rounded-xl border border-zinc-200 text-center text-xs font-semibold text-zinc-700 hover:text-black hover:border-zinc-300 hover:bg-zinc-50 transition-all"
+        {/* 3. Boutons d'action carrés : Je suis intéressé + WhatsApp */}
+        <div className="px-3.5 pb-3.5 pt-1 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setLeadVehicle({
+              id: vehicle.id,
+              brand: vehicle.brand,
+              model: vehicle.model,
+              image: mainImg,
+              price: priceText,
+              fuel: vehicle.fuel
+            })}
+            className="flex-1 py-2 rounded-none bg-[#e10600] hover:bg-[#c30500] text-white text-center text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer truncate shadow-xs"
           >
-            Fiche technique
-          </Link>
+            Je suis intéressé
+          </button>
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-2 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            className="py-2 px-3 rounded-none bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer shrink-0"
           >
             <WhatsAppIcon className="w-3.5 h-3.5" />
-            <span>WhatsApp</span>
+            <span className="text-[10px] uppercase font-bold">WA</span>
           </a>
         </div>
       </div>
@@ -305,13 +315,9 @@ export const OffersPage: React.FC = () => {
   };
 
   return (
-    <div className="pt-24 sm:pt-30 pb-20 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-24 max-w-[1550px] mx-auto w-full">
+    <div className="pt-3 sm:pt-5 pb-16 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-24 max-w-[1550px] mx-auto w-full">
       {/* 1. Header épuré sans texte superflu */}
-      <div className="mb-8">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e10600]/10 border border-[#e10600]/25 text-[#e10600] text-xs font-bold tracking-wider uppercase mb-2.5">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Conditions Privilège IPM Motors</span>
-        </div>
+      <div className="mb-6">
         <h1 className="font-heading font-light text-2xl sm:text-4xl lg:text-5xl tracking-tight leading-tight text-[var(--fg)]">
           Nos Offres <span className="font-semibold text-[#e10600]">du Moment</span>
         </h1>
@@ -412,6 +418,13 @@ export const OffersPage: React.FC = () => {
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
+
+      {/* Modal Popup 'Je suis intéressé' pour les offres */}
+      <InterestModal
+        isOpen={Boolean(leadVehicle)}
+        onClose={() => setLeadVehicle(null)}
+        vehicle={leadVehicle || { brand: '', model: '' }}
+      />
     </div>
   );
 };

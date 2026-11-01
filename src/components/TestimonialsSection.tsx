@@ -1,55 +1,64 @@
-import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, Star } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Star } from 'lucide-react';
 import { getTestimonials, subscribeToTestimonials, TestimonialItem } from '../lib/testimonialsStorage';
 
 export const TestimonialsSection: React.FC = () => {
   const [items, setItems] = useState<TestimonialItem[]>(() => getTestimonials());
-  const [startIndex, setStartIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsub = subscribeToTestimonials((updated) => {
       setItems(updated);
     });
     return unsub;
   }, []);
 
-  const maxVisible = 3;
-  const canGoNext = startIndex + maxVisible < items.length;
-  const canGoPrev = startIndex > 0;
+  // Défilement automatique fluide de gauche à droite
+  useEffect(() => {
+    if (items.length === 0) return;
 
-  const handleNext = () => {
-    if (canGoNext) setStartIndex((prev) => prev + 1);
-    else setStartIndex(0);
-  };
+    const interval = setInterval(() => {
+      if (isHovered) return;
+      const el = scrollRef.current;
+      if (!el) return;
 
-  const handlePrev = () => {
-    if (canGoPrev) setStartIndex((prev) => prev - 1);
-    else setStartIndex(Math.max(0, items.length - maxVisible));
-  };
+      const cardWidth = 240;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+
+      if (el.scrollLeft >= maxScroll - 10) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: cardWidth, behavior: 'smooth' });
+      }
+    }, 3200);
+
+    return () => clearInterval(interval);
+  }, [items.length, isHovered]);
 
   return (
-    <section className="py-10 sm:py-14 bg-[#FAFAFA] dark:bg-[#0c0c0e] border-t border-zinc-200/80 dark:border-zinc-800">
+    <section className="py-8 sm:py-12 bg-[#FAFAFA] dark:bg-[#0c0c0e] border-t border-zinc-200/80 dark:border-zinc-800">
       <div className="max-w-[1500px] mx-auto px-4 sm:px-8 lg:px-16 xl:px-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
           
           {/* Colonne gauche : Titre, sous-titre et badges Google / Facebook */}
-          <div className="lg:col-span-4 space-y-4">
-            <div className="w-10 h-1 bg-[#1565C0] rounded-full" />
+          <div className="lg:col-span-4 space-y-3.5">
+            <div className="w-8 h-1 bg-[#1565C0] rounded-none" />
 
             <div>
-              <h2 className="font-heading font-bold text-xl sm:text-2xl lg:text-3xl text-zinc-950 dark:text-white tracking-tight leading-snug">
+              <h2 className="font-heading font-bold text-lg sm:text-2xl text-zinc-950 dark:text-white tracking-tight leading-snug">
                 Clients heureux, nous aussi !
               </h2>
-              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1.5 font-light leading-relaxed">
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-light leading-relaxed">
                 Vous pouvez nous faire confiance, comme ces clients déjà heureux !
               </p>
             </div>
 
             {/* Badges Google & Facebook compacts */}
-            <div className="pt-1 flex flex-row lg:flex-col gap-4 lg:gap-2.5">
+            <div className="pt-1 flex flex-row lg:flex-col gap-4 lg:gap-2">
               {/* Google */}
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-white dark:bg-zinc-800 shadow-xs flex items-center justify-center p-1 shrink-0 border border-zinc-200 dark:border-zinc-700">
+                <div className="w-6 h-6 rounded-none bg-white dark:bg-zinc-800 shadow-2xs flex items-center justify-center p-0.5 shrink-0 border border-zinc-200 dark:border-zinc-700">
                   <svg viewBox="0 0 24 24" className="w-full h-full">
                     <path
                       fill="#4285F4"
@@ -76,7 +85,7 @@ export const TestimonialsSection: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
                 </div>
@@ -84,7 +93,7 @@ export const TestimonialsSection: React.FC = () => {
 
               {/* Facebook */}
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-[#1877F2] shadow-xs flex items-center justify-center p-1 shrink-0">
+                <div className="w-6 h-6 rounded-none bg-[#1877F2] shadow-2xs flex items-center justify-center p-0.5 shrink-0">
                   <svg viewBox="0 0 24 24" className="w-full h-full fill-white">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
@@ -96,7 +105,7 @@ export const TestimonialsSection: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
                 </div>
@@ -104,31 +113,37 @@ export const TestimonialsSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Colonne droite : Slider horizontal parallax sur Mobile/Tablette, grille 3 sur Desktop */}
-          <div className="lg:col-span-8 relative">
-            {/* Mobile / Tablette : Défilement horizontal fluide de gauche à droite (Parallax minimaliste) */}
-            <div className="flex lg:hidden overflow-x-auto snap-x snap-mandatory gap-3.5 pb-2 scrollbar-none -mx-4 px-4">
+          {/* Colonne droite : Slider avec défilement automatique fluide de gauche à droite, blocs de taille diminuée */}
+          <div
+            className="lg:col-span-8 overflow-hidden"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div
+              ref={scrollRef}
+              className="flex overflow-x-auto gap-3 pb-2 scrollbar-none scroll-smooth snap-x snap-mandatory -mx-2 px-2"
+            >
               {items.map((item: TestimonialItem) => (
                 <div
                   key={item.id}
-                  className="w-[240px] sm:w-[270px] shrink-0 snap-start bg-white dark:bg-[#141416] rounded-xl overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-xs flex flex-col justify-between"
+                  className="w-[200px] sm:w-[220px] shrink-0 snap-start bg-white dark:bg-[#141416] rounded-none overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-2xs flex flex-col justify-between transition-all hover:shadow-sm"
                 >
                   <div className="relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
                     <img
                       src={item.image}
                       alt={`Client ${item.name} IPM Motors`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-none"
                       loading="lazy"
                     />
                   </div>
 
-                  <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
-                    <p className="text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-light leading-relaxed line-clamp-3">
+                  <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
+                    <p className="text-[11px] text-zinc-700 dark:text-zinc-300 font-light leading-relaxed line-clamp-3">
                       {item.comment}
                     </p>
 
                     <div className="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                      <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-[9px] font-bold text-zinc-700 dark:text-zinc-200 shrink-0">
+                      <div className="w-5 h-5 rounded-none bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-[9px] font-bold text-zinc-700 dark:text-zinc-200 shrink-0">
                         {item.avatarText}
                       </div>
                       <div className="min-w-0">
@@ -144,54 +159,6 @@ export const TestimonialsSection: React.FC = () => {
                 </div>
               ))}
             </div>
-
-            {/* Desktop : Grille 3 blocs avec flèche de navigation */}
-            <div className="hidden lg:grid grid-cols-3 gap-4">
-              {items.slice(startIndex, startIndex + maxVisible).map((item: TestimonialItem) => (
-                <div
-                  key={item.id}
-                  className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden border border-zinc-200/90 dark:border-zinc-800 shadow-xs flex flex-col justify-between transition-all hover:shadow-md"
-                >
-                  <div className="relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={`Client ${item.name} IPM Motors`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
-                    <p className="text-xs text-zinc-700 dark:text-zinc-300 font-light leading-relaxed line-clamp-3">
-                      {item.comment}
-                    </p>
-
-                    <div className="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                      <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-[9px] font-bold text-zinc-700 dark:text-zinc-200 shrink-0">
-                        {item.avatarText}
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-xs font-bold text-zinc-900 dark:text-white block truncate">
-                          {item.name}
-                        </span>
-                        <span className="text-[10px] text-zinc-400 font-light block">
-                          {item.date}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Bouton flèche navigation circulaire droite desktop */}
-            <button
-              type="button"
-              onClick={handleNext}
-              aria-label="Témoignage suivant"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-md text-zinc-800 dark:text-white items-center justify-center hover:bg-[#e10600] hover:text-white transition-colors cursor-pointer z-10 hidden lg:flex"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
 
         </div>

@@ -104,35 +104,38 @@ export const AfterSalesPage: React.FC = () => {
 
   return (
     <div className="bg-white text-zinc-950 transition-colors duration-200">
-      {/* 1. HERO HEADER (Fond blanc pur, textes sombres nets) */}
-      <section className="pt-24 sm:pt-32 pb-14 px-6 sm:px-12 lg:px-20 max-w-[1440px] mx-auto text-center">
-        <div className="max-w-3xl mx-auto">
-          <span className="eyebrow block mb-2 text-[#e10600]">
-            Transparence & Sérénité
-          </span>
-          <h1 className="font-heading font-light text-3xl sm:text-5xl lg:text-6xl tracking-tight text-zinc-950">
-            Service Après-Vente & <span className="font-semibold text-[#e10600]">Garantie</span>
+      {/* 1. PREMIÈRE SECTION : PARC AUTOMOBILE & SHOWROOM (Design haut de gamme avec coordonnées officielles complètes) */}
+      <section className="pt-24 sm:pt-28 pb-12 px-4 sm:px-8 lg:px-14 max-w-[1440px] mx-auto w-full">
+        {/* En-tête principal */}
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 border border-red-200 text-[#e10600] text-xs font-bold uppercase tracking-wider mb-3 shadow-2xs">
+            <MapPin className="w-3.5 h-3.5 text-[#e10600]" />
+            <span>Parc Automobile & Showroom Officiel</span>
+          </div>
+          <h1 className="font-heading font-light text-2xl sm:text-4xl lg:text-5xl text-zinc-950 tracking-tight leading-tight">
+            Parc Automobile & <span className="font-semibold text-[#e10600]">Showroom IPM Motors</span>
           </h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-4 font-light leading-relaxed">
-            Chez IPM MOTORS, l’acquisition d’un véhicule 0 km s’accompagne d’un suivi rigoureux. Nous assurons la garantie constructeur, l'entretien certifié et les démarches administratives à Abidjan.
+          <p className="text-xs sm:text-sm text-zinc-600 mt-3 font-light max-w-2xl mx-auto leading-relaxed">
+            Notre showroom et centre technique agréé à Cocody Riviera Bonoumin vous accueille 6j/7 pour la présentation de nos véhicules 0 km, vos essais privés et le suivi intégral de votre garantie constructeur.
           </p>
 
-          <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 mt-7 max-w-lg mx-auto w-full">
+          {/* Boutons d'action rapide côte à côte sur la même ligne */}
+          <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 mt-6 max-w-lg mx-auto w-full">
             <a
               href={waGeneralUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 py-3 px-3 sm:px-5 bg-[#e10600] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#e10600]/25 hover:bg-[#c30500] rounded-none flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer truncate"
+              className="flex-1 py-3 px-3 sm:px-5 bg-[#e10600] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#e10600]/25 hover:bg-[#c30500] rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer truncate"
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
               <span className="truncate">Assistance WhatsApp</span>
             </a>
             <a
-              href={`tel:${DEALERSHIP_CONFIG.phone}`}
-              className="flex-1 py-3 px-3 sm:px-5 bg-zinc-100 text-zinc-900 border border-zinc-300 text-xs sm:text-sm font-semibold hover:border-zinc-500 rounded-none flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer truncate"
+              href="tel:0701202021"
+              className="flex-1 py-3 px-3 sm:px-5 bg-zinc-100 text-zinc-900 border border-zinc-300 text-xs sm:text-sm font-semibold hover:border-zinc-500 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer truncate"
             >
               <Phone className="w-4 h-4 text-[#e10600] shrink-0" />
-              <span className="truncate">{DEALERSHIP_CONFIG.phone}</span>
+              <span className="truncate">07 01 20 20 21</span>
             </a>
           </div>
         </div>
@@ -142,49 +145,45 @@ export const AfterSalesPage: React.FC = () => {
       <div className="w-full space-y-0">
         {/* ENGAGEMENT 01 — Garantie Constructeur Officielle (Full-Bleed Fond Blanc) */}
         {sec1 && (
-          <section className="full-bleed bg-white text-zinc-950 py-12 sm:py-16 border-t border-zinc-100">
-            <div className="full-bleed__inner max-w-[1100px] mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-                <div className="order-2 md:order-1 space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-red-50 border border-red-200 text-[#e10600] text-[11px] font-bold tracking-wider uppercase">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>{sec1.badge || 'Engagement 01'}</span>
-                  </div>
-                  <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
-                    Garantie <span className="font-semibold text-[#e10600]">{sec1.titleHighlight || 'Constructeur Officielle'}</span>
-                  </h2>
-                  <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
-                    {sec1.subtitle}
-                  </p>
-                  <ul className="space-y-2.5 pt-2">
-                    {sec1.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-800">
-                        <CheckCircle2 className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <section className="engagement engagement--media-right bg-white text-zinc-950 border-t border-zinc-100">
+            <div className="engagement__text space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-red-50 border border-red-200 text-[#e10600] text-[11px] font-bold tracking-wider uppercase">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>{sec1.badge || 'Engagement 01'}</span>
+              </div>
+              <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
+                Garantie <span className="font-semibold text-[#e10600]">{sec1.titleHighlight || 'Constructeur Officielle'}</span>
+              </h2>
+              <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
+                {sec1.subtitle}
+              </p>
+              <ul className="space-y-2.5 pt-2">
+                {sec1.points.map((point, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-800">
+                    <CheckCircle2 className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                {/* Image définie depuis l'admin */}
-                <div className="order-1 md:order-2">
-                  <div className="relative group overflow-hidden rounded-none shadow-md border border-zinc-200 bg-zinc-100 aspect-[16/10]">
-                    <img
-                      src={sec1.image || savDealImg}
-                      alt={sec1.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-3 left-4 right-4 text-white">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-white/90 block">
-                        {sec1.locationBadge || 'Cocody Abidjan'}
-                      </span>
-                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
-                        {sec1.caption || 'Garantie constructeur & remise du carnet d’origine'}
-                      </p>
-                    </div>
-                  </div>
+            {/* Image définie depuis l'admin */}
+            <div className="engagement__media">
+              <div className="relative group overflow-hidden shadow-md border border-zinc-200 bg-zinc-100 aspect-[16/10] sm:aspect-[16/9] md:aspect-auto md:h-full md:min-h-[380px]">
+                <img
+                  src={sec1.image || savDealImg}
+                  alt={sec1.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-4 right-4 text-white">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-white/90 block">
+                    {sec1.locationBadge || 'Cocody Abidjan'}
+                  </span>
+                  <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                    {sec1.caption || 'Garantie constructeur & remise du carnet d’origine'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -193,49 +192,45 @@ export const AfterSalesPage: React.FC = () => {
 
         {/* ENGAGEMENT 02 — Ateliers Certifiés & Pièces 100% OEM (Full-Bleed Fond #0f172a Slate Sombre) */}
         {sec2 && (
-          <section className="full-bleed bg-[#0f172a] text-white py-12 sm:py-16 shadow-md">
-            <div className="full-bleed__inner max-w-[1100px] mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-                {/* Image définie depuis l'admin */}
-                <div className="order-1">
-                  <div className="relative group overflow-hidden rounded-none shadow-md border border-slate-700 bg-slate-800 aspect-[16/10]">
-                    <img
-                      src={sec2.image || savWorkshopImg}
-                      alt={sec2.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-3 left-4 right-4 text-white">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-cyan-400 block">
-                        {sec2.locationBadge || 'Diagnostic Expert & Pièces OEM'}
-                      </span>
-                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
-                        {sec2.caption || 'Techniciens certifiés & valises diagnostiques officielles'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          <section className="engagement engagement--media-left bg-[#0f172a] text-white shadow-md">
+            <div className="engagement__text space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold tracking-wider uppercase">
+                <Wrench className="w-3.5 h-3.5" />
+                <span>{sec2.badge || 'Engagement 02'}</span>
+              </div>
+              <h2 className="font-heading font-light text-2xl sm:text-4xl text-white tracking-tight">
+                Ateliers Certifiés & <span className="font-semibold text-blue-400">{sec2.titleHighlight || 'Pièces 100% OEM'}</span>
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
+                {sec2.subtitle}
+              </p>
+              <ul className="space-y-2.5 pt-2">
+                {sec2.points.map((point, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200">
+                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                <div className="order-2 space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold tracking-wider uppercase">
-                    <Wrench className="w-3.5 h-3.5" />
-                    <span>{sec2.badge || 'Engagement 02'}</span>
-                  </div>
-                  <h2 className="font-heading font-light text-2xl sm:text-4xl text-white tracking-tight">
-                    Ateliers Certifiés & <span className="font-semibold text-blue-400">{sec2.titleHighlight || 'Pièces 100% OEM'}</span>
-                  </h2>
-                  <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed">
-                    {sec2.subtitle}
+            {/* Image définie depuis l'admin */}
+            <div className="engagement__media">
+              <div className="relative group overflow-hidden shadow-md border border-slate-700 bg-slate-800 aspect-[16/10] sm:aspect-[16/9] md:aspect-auto md:h-full md:min-h-[380px]">
+                <img
+                  src={sec2.image || savWorkshopImg}
+                  alt={sec2.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-4 right-4 text-white">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-cyan-400 block">
+                    {sec2.locationBadge || 'Diagnostic Expert & Pièces OEM'}
+                  </span>
+                  <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                    {sec2.caption || 'Techniciens certifiés & valises diagnostiques officielles'}
                   </p>
-                  <ul className="space-y-2.5 pt-2">
-                    {sec2.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200">
-                        <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </div>
             </div>
@@ -244,49 +239,45 @@ export const AfterSalesPage: React.FC = () => {
 
         {/* ENGAGEMENT 03 — Immatriculation & Clés en Main (Full-Bleed Fond Blanc Pur) */}
         {sec3 && (
-          <section className="full-bleed bg-zinc-50/80 text-zinc-950 py-12 sm:py-16 border-t border-b border-zinc-200">
-            <div className="full-bleed__inner max-w-[1100px] mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-                <div className="order-2 md:order-1 space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold tracking-wider uppercase">
-                    <FileCheck2 className="w-3.5 h-3.5" />
-                    <span>{sec3.badge || 'Engagement 03'}</span>
-                  </div>
-                  <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
-                    Immatriculation & <span className="font-semibold text-emerald-600">{sec3.titleHighlight || 'Clés en Main'}</span>
-                  </h2>
-                  <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
-                    {sec3.subtitle}
-                  </p>
-                  <ul className="space-y-2.5 pt-2">
-                    {sec3.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-800">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <section className="engagement engagement--media-right bg-zinc-50/80 text-zinc-950 border-t border-b border-zinc-200">
+            <div className="engagement__text space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold tracking-wider uppercase">
+                <FileCheck2 className="w-3.5 h-3.5" />
+                <span>{sec3.badge || 'Engagement 03'}</span>
+              </div>
+              <h2 className="font-heading font-light text-2xl sm:text-4xl text-zinc-950 tracking-tight">
+                Immatriculation & <span className="font-semibold text-emerald-600">{sec3.titleHighlight || 'Clés en Main'}</span>
+              </h2>
+              <p className="text-sm sm:text-base text-zinc-600 font-light leading-relaxed">
+                {sec3.subtitle}
+              </p>
+              <ul className="space-y-2.5 pt-2">
+                {sec3.points.map((point, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-800">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                {/* Image définie depuis l'admin */}
-                <div className="order-1 md:order-2">
-                  <div className="relative group overflow-hidden rounded-none shadow-md border border-zinc-200 bg-white aspect-[16/10] flex items-center justify-center p-2">
-                    <img
-                      src={sec3.image || savKeysImg}
-                      alt={sec3.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-3 left-4 right-4 text-white">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-white/90 block">
-                        {sec3.locationBadge || 'Guichet Unique Automobile'}
-                      </span>
-                      <p className="text-xs sm:text-sm font-semibold text-white truncate">
-                        {sec3.caption || 'Carte grise ivoirienne, plaques homologuées & clés remises en main propre'}
-                      </p>
-                    </div>
-                  </div>
+            {/* Image définie depuis l'admin */}
+            <div className="engagement__media">
+              <div className="relative group overflow-hidden shadow-md border border-zinc-200 bg-white aspect-[16/10] sm:aspect-[16/9] md:aspect-auto md:h-full md:min-h-[380px] flex items-center justify-center p-2">
+                <img
+                  src={sec3.image || savKeysImg}
+                  alt={sec3.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-4 right-4 text-white">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-white/90 block">
+                    {sec3.locationBadge || 'Guichet Unique Automobile'}
+                  </span>
+                  <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                    {sec3.caption || 'Carte grise ivoirienne, plaques homologuées & clés remises en main propre'}
+                  </p>
                 </div>
               </div>
             </div>

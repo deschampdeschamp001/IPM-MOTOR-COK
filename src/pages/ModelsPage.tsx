@@ -4,6 +4,7 @@ import { useSearchParams, Link } from '../router/Router';
 import { VehicleCard } from '../components/VehicleCard';
 import { X, RotateCcw, SlidersHorizontal, Search } from 'lucide-react';
 import { POPULAR_BRANDS } from '../config/dealership';
+import { DEFAULT_BRAND_LOGOS } from '../data/defaultBrands';
 
 export const ModelsPage: React.FC = () => {
   const { vehicles, brands } = useData();
@@ -35,9 +36,14 @@ export const ModelsPage: React.FC = () => {
     document.title = 'Catalogue Véhicules Neufs 0 km | IPM Motors Abidjan';
   }, []);
 
-  // Map brand names to logos defined in admin / brands context
+  // Map brand names to logos defined in admin / brands context + default fallbacks
   const brandLogoMap = useMemo(() => {
     const map: Record<string, string> = {};
+    // 1. Defaults
+    Object.entries(DEFAULT_BRAND_LOGOS).forEach(([k, v]) => {
+      map[k.toLowerCase()] = v;
+    });
+    // 2. From Admin parameters / DB brands
     brands.forEach((b) => {
       if (b.logo_url) {
         map[b.name.toLowerCase()] = b.logo_url;
@@ -197,7 +203,7 @@ export const ModelsPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setMobileFilterOpen(true)}
-              className="lg:hidden px-3.5 py-1.5 bg-[var(--card)] text-xs font-semibold flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 rounded-none shadow-2xs hover:border-[#e10600] transition-colors cursor-pointer"
+              className="lg:hidden px-3.5 py-1.5 bg-[var(--card)] text-xs font-semibold flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xs hover:border-[#e10600] transition-colors cursor-pointer"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#e10600]" />
               <span>Filtres {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
@@ -224,7 +230,7 @@ export const ModelsPage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 rounded-none bg-[var(--surface)] text-[var(--fg)] text-xs font-medium focus:outline-none border border-zinc-200 dark:border-zinc-800 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-[var(--surface)] text-[var(--fg)] text-xs font-medium focus:outline-none border border-zinc-200 dark:border-zinc-800 cursor-pointer"
             >
               <option value="default">Recommandés</option>
               <option value="price-asc">Prix : croissant</option>
@@ -415,10 +421,10 @@ export const ModelsPage: React.FC = () => {
           </div>
         </aside>
 
-        {/* Modal Bottom Sheet pour filtres mobile/tablette (Au-dessus de la barre de dock, boutons carrés côte à côte) */}
+        {/* Modal Bottom Sheet pour filtres mobile/tablette (Au-dessus de la barre de navigation mobile avec logos des marques) */}
         {mobileFilterOpen && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end lg:hidden">
-            <div className="bg-white dark:bg-[#121214] rounded-t-2xl max-h-[85vh] flex flex-col p-5 pb-24 overflow-y-auto shadow-2xl">
+          <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-xs flex flex-col justify-end lg:hidden">
+            <div className="bg-white dark:bg-[#121214] rounded-t-3xl max-h-[88vh] flex flex-col p-5 pb-28 overflow-y-auto shadow-2xl">
               <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-700 rounded-full mx-auto mb-3" />
               <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-3">
                 <span className="font-heading font-bold text-sm text-zinc-950 dark:text-white uppercase tracking-wider">
@@ -435,23 +441,43 @@ export const ModelsPage: React.FC = () => {
 
               {/* Filtres compacts mobile */}
               <div className="space-y-4 py-2">
-                {/* Marques */}
+                {/* Marques avec Logos + Cases à cocher + Nom de marque */}
                 <div>
                   <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-zinc-900 dark:text-white mb-2">
                     Marques
                   </h4>
-                  <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
-                    {allBrandNames.map((brand) => (
-                      <label key={brand} className="flex items-center gap-2 text-xs py-1 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedMarques.includes(brand)}
-                          onChange={() => toggleMarque(brand)}
-                          className="rounded-none text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
-                        />
-                        <span className="truncate">{brand}</span>
-                      </label>
-                    ))}
+                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {allBrandNames.map((brand) => {
+                      const logoUrl = brandLogoMap[brand.toLowerCase()] || DEFAULT_BRAND_LOGOS[brand];
+                      const isChecked = selectedMarques.includes(brand);
+                      return (
+                        <label
+                          key={brand}
+                          className={`flex items-center gap-2 text-xs p-2 rounded-xl border transition-colors cursor-pointer select-none ${
+                            isChecked
+                              ? 'bg-[#e10600]/10 border-[#e10600]/40 text-[#e10600] font-semibold shadow-2xs'
+                              : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:border-zinc-300'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleMarque(brand)}
+                            className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5 shrink-0"
+                          />
+                          {logoUrl && (
+                            <div className="w-5 h-5 shrink-0 bg-white rounded flex items-center justify-center p-0.5 border border-zinc-200/60 shadow-2xs overflow-hidden">
+                              <img
+                                src={logoUrl}
+                                alt={brand}
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                          )}
+                          <span className="truncate">{brand}</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -467,7 +493,7 @@ export const ModelsPage: React.FC = () => {
                           type="checkbox"
                           checked={selectedTypes.includes(type)}
                           onChange={() => toggleType(type)}
-                          className="rounded-none text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
                         />
                         <span>{type}</span>
                       </label>
@@ -487,7 +513,7 @@ export const ModelsPage: React.FC = () => {
                           type="checkbox"
                           checked={selectedEnergies.includes(eng)}
                           onChange={() => toggleEnergie(eng)}
-                          className="rounded-none text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
+                          className="rounded text-[#e10600] accent-[#e10600] w-3.5 h-3.5"
                         />
                         <span>{eng}</span>
                       </label>
@@ -496,19 +522,19 @@ export const ModelsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Boutons actions mobile côte à côte carrés Image 4 (parfaitement au-dessus de la barre de navigation) */}
-              <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2 mt-2">
+              {/* Boutons actions mobile côte à côte (Positionnés au-dessus de la barre de navigation mobile avec padding de sécurité pb-28) */}
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2 mt-2">
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="py-3 px-5 rounded-none border border-zinc-300 dark:border-zinc-700 text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  className="py-3 px-5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   Effacer
                 </button>
                 <button
                   type="button"
                   onClick={() => setMobileFilterOpen(false)}
-                  className="flex-1 py-3 bg-[#e10600] hover:bg-[#c30500] text-white rounded-none text-xs font-bold uppercase tracking-wider shadow-sm transition-colors cursor-pointer"
+                  className="flex-1 py-3 bg-[#e10600] hover:bg-[#c30500] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-colors cursor-pointer text-center"
                 >
                   Voir les modèles ({filteredVehicles.length})
                 </button>

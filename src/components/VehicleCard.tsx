@@ -27,8 +27,8 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
 
   return (
     <>
-      <article className="group relative rounded-none bg-white dark:bg-[#141416] border border-zinc-200/90 dark:border-zinc-800 p-3 sm:p-4 lg:p-5 flex flex-col items-center text-center justify-between min-h-[340px] sm:min-h-[380px] transition-all duration-300 shadow-2xs hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700">
-        {/* 1. Header du bloc : Marque, Modèle en sans-serif élégant, Badges carrés */}
+      <article className="group relative rounded-2xl bg-white dark:bg-[#141416] border border-zinc-200/90 dark:border-zinc-800 p-3 sm:p-4 lg:p-5 flex flex-col items-center text-center justify-between min-h-[340px] sm:min-h-[380px] transition-all duration-300 shadow-2xs hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 overflow-hidden">
+        {/* 1. Header du bloc : Marque, Modèle en sans-serif élégant, Badges */}
         <div className="w-full flex flex-col items-center">
           {/* Marque */}
           <span className="font-heading text-[10px] sm:text-xs tracking-wider uppercase text-zinc-500 font-semibold mb-0.5">
@@ -42,16 +42,16 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             </h3>
           </Link>
 
-          {/* Badges horizontaux carrés centrés */}
+          {/* Badges horizontaux centrés */}
           <div className="flex flex-wrap items-center justify-center gap-1 mb-1.5">
-            <span className="bg-[#e10600] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider shadow-2xs">
+            <span className="bg-[#e10600] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider shadow-2xs">
               0 km
             </span>
-            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700 text-[9px] sm:text-[10px] font-medium px-1.5 py-0.5 rounded-none uppercase tracking-wider">
+            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700 text-[9px] sm:text-[10px] font-medium px-1.5 py-0.5 rounded-md uppercase tracking-wider">
               {vehicle.fuel || vehicle.type}
             </span>
             {vehicle.year && (
-              <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700 text-[9px] font-mono px-1.5 py-0.5 rounded-none">
+              <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700 text-[9px] font-mono px-1.5 py-0.5 rounded-md">
                 {vehicle.year}
               </span>
             )}
@@ -61,14 +61,14 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         {/* 2. Photo du véhicule centrée */}
         <Link
           to={`/vehicule/${vehicle.id}`}
-          className="w-full my-2 flex-1 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-300 rounded-none"
+          className="w-full my-2 flex-1 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-300"
         >
           <div className="w-full h-28 sm:h-36 lg:h-40 flex items-center justify-center">
             <img
               src={mainImage}
               alt={`${vehicle.brand} ${vehicle.model} 0 km`}
               loading="lazy"
-              className="max-h-full max-w-full object-contain filter drop-shadow-sm rounded-none"
+              className="max-h-full max-w-full object-contain filter drop-shadow-sm"
               onError={(e) => {
                 e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
               }}
@@ -76,7 +76,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
           </div>
         </Link>
 
-        {/* 3. Zone inférieure : Prix + Bouton 'Je suis intéressé' & WhatsApp */}
+        {/* 3. Zone inférieure : Prix + Bouton 'Je suis intéressé' & WhatsApp (Arrondis & Responsive) */}
         <div className="w-full mt-1 pt-1.5 flex flex-col items-center">
           {/* Prix toujours affiché au centre */}
           <div className="mb-2 text-center">
@@ -88,14 +88,15 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             </span>
           </div>
 
-          {/* Bloc d'actions carré : Je suis intéressé (Modal) + WhatsApp */}
+          {/* Bloc d'actions : Bouton Je suis intéressé arrondi + WhatsApp arrondi (Responsive & Minimaliste) */}
           <div className="w-full flex items-center justify-center gap-1.5 pt-1">
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="flex-1 py-2 px-2.5 bg-[#e10600] hover:bg-[#c30500] text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-none flex items-center justify-center transition-all shadow-xs cursor-pointer truncate"
+              className="flex-1 min-w-0 h-8 sm:h-9 px-1.5 sm:px-2 bg-[#e10600] hover:bg-[#c30500] text-white text-[8.5px] min-[360px]:text-[9.5px] sm:text-xs font-bold uppercase tracking-tight rounded-xl flex items-center justify-center transition-all shadow-xs cursor-pointer text-center leading-none"
+              title="Je suis intéressé par ce véhicule"
             >
-              <span>Je suis intéressé</span>
+              <span className="truncate whitespace-nowrap block">Je suis intéressé</span>
             </button>
 
             <a
@@ -104,9 +105,9 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
               rel="noopener noreferrer"
               aria-label={`Acheter ou commander ${vehicle.brand} ${vehicle.model} sur WhatsApp`}
               title="Contacter par WhatsApp avec les détails de ce modèle"
-              className="h-8 px-2.5 rounded-none bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center gap-1 transition-all shadow-sm shrink-0 cursor-pointer text-xs font-bold"
+              className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center gap-1 transition-all shadow-xs shrink-0 cursor-pointer text-xs font-bold"
             >
-              <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
+              <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
               <span className="hidden sm:inline text-[10px] uppercase font-bold">WA</span>
             </a>
           </div>

@@ -36,14 +36,14 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     const cached = localStorage.getItem('ipm_cached_vehicles');
-    if (cached) {
+    if (cached !== null) {
       try {
         return JSON.parse(cached);
       } catch {
         // fallback
       }
     }
-    return FALLBACK_VEHICLES;
+    return [];
   });
 
   const [brands, setBrands] = useState<Brand[]>(() => getLocalStoredBrands());
@@ -63,7 +63,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (isSupabaseConfigured()) {
         const { data, error } = await getVehiclesFromDB();
-        if (!error && data && data.length > 0) {
+        if (!error && data !== null) {
           setVehicles(data);
           localStorage.setItem('ipm_cached_vehicles', JSON.stringify(data));
           setIsUsingFallback(false);
@@ -73,16 +73,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // fallback
     }
-    // Fallback: check local storage or use mock
+    // Fallback: check local storage
     const saved = localStorage.getItem('ipm_cached_vehicles');
-    if (saved) {
+    if (saved !== null) {
       try {
         setVehicles(JSON.parse(saved));
       } catch {
-        setVehicles(FALLBACK_VEHICLES);
+        setVehicles([]);
       }
     } else {
-      setVehicles(FALLBACK_VEHICLES);
+      setVehicles([]);
     }
     setIsUsingFallback(true);
   }, []);
@@ -141,11 +141,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubNews = subscribeToNews((updated) => setNewsArticles(updated));
     const unsubBanner = subscribeToExclusiveBanner((updated) => setExclusiveBanner(updated));
 
+    const onVehiclesUpdated = (e: any) => {
+      if (e?.detail && Array.isArray(e.detail)) {
+        setVehicles(e.detail);
+      } else {
+        refreshVehicles();
+      }
+    };
+    window.addEventListener('ipm_vehicles_updated', onVehiclesUpdated);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'ipm_cached_vehicles') {
+        try {
+          if (e.newValue) setVehicles(JSON.parse(e.newValue));
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
     return () => {
       mounted = false;
       unsubBrands();
       unsubNews();
       unsubBanner();
+      window.removeEventListener('ipm_vehicles_updated', onVehiclesUpdated);
+      window.removeEventListener('storage', onStorage);
     };
   }, [refreshVehicles, refreshBrands, refreshNews, refreshSubscribers, refreshLeads]);
 

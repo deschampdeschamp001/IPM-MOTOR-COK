@@ -3,6 +3,7 @@ import { MessageSquare, Phone, Send, CheckCircle2 } from 'lucide-react';
 import { DEALERSHIP_CONFIG, buildWhatsAppUrl } from '../../config/dealership';
 import { recordLeadInDB } from '../../lib/supabase';
 import { ResponsiveModal } from '../ui/ResponsiveModal';
+import { PhoneInputWithCountry } from '../PhoneInputWithCountry';
 
 interface VIPContactModalProps {
   isOpen: boolean;
@@ -151,13 +152,12 @@ ${message ? `Détails : ${message}` : 'Je souhaite être contacté par un consei
                 <label className="block text-xs uppercase tracking-wider text-zinc-600 dark:text-zinc-400 font-semibold mb-1">
                   Téléphone / WhatsApp *
                 </label>
-                <input
-                  type="tel"
-                  required
+                <PhoneInputWithCountry
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Ex: 05 04 03 02 01"
-                  className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-900 dark:text-white focus:outline-none focus:border-[#E10600]"
+                  onChange={setPhone}
+                  required
+                  placeholder="07 01 20 20 21"
+                  variant="rounded"
                 />
               </div>
             </div>

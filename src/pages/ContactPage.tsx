@@ -17,6 +17,120 @@ import {
   Award,
   Sparkles
 } from 'lucide-react';
+import { PhoneInputWithCountry } from '../components/PhoneInputWithCountry';
+
+{/* Icônes 3D Glassmorphism Cristal inspirées de l'Image 4 sur fond blanc sans contour */}
+const GlassShieldIcon: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 64 64" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="shieldGrad" x1="16" y1="8" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#60A5FA" />
+        <stop offset="0.4" stopColor="#2563EB" />
+        <stop offset="0.8" stopColor="#1E3A8A" />
+        <stop offset="1" stopColor="#0F172A" />
+      </linearGradient>
+      <linearGradient id="shieldHighlight" x1="18" y1="10" x2="32" y2="46" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FFFFFF" stopOpacity="0.8" />
+        <stop offset="0.5" stopColor="#93C5FD" stopOpacity="0.2" />
+        <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="32" cy="54" rx="16" ry="3.5" fill="#1E3A8A" opacity="0.25" />
+    <path
+      d="M32 8L48 15V32C48 43 32 54 32 54C32 54 16 43 16 32V15L32 8Z"
+      fill="url(#shieldGrad)"
+      stroke="#93C5FD"
+      strokeWidth="1.2"
+    />
+    <path
+      d="M32 12L44 17.5V30C44 39.5 32 49 32 49C32 49 20 39.5 20 30V17.5L32 12Z"
+      fill="#1D4ED8"
+      fillOpacity="0.4"
+    />
+    <path
+      d="M32 10L46 16.2V28C46 32 43 38 32 46C26 40 22 34 22 28V16.2L32 10Z"
+      fill="url(#shieldHighlight)"
+    />
+    <path
+      d="M32 20C28 20 25.5 22.5 25.5 25.5C25.5 29 28 30.5 32 31.5C36 32.5 38.5 34 38.5 37.5C38.5 41 35.5 43.5 32 43.5M32 18V45"
+      stroke="#E0F2FE"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity="0.9"
+    />
+  </svg>
+);
+
+const GlassLightningIcon: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 64 64" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="lightGrad" x1="18" y1="8" x2="46" y2="56" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#93C5FD" />
+        <stop offset="0.35" stopColor="#3B82F6" />
+        <stop offset="0.75" stopColor="#1D4ED8" />
+        <stop offset="1" stopColor="#0F172A" />
+      </linearGradient>
+      <linearGradient id="lightSpecular" x1="20" y1="10" x2="35" y2="35" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FFFFFF" stopOpacity="0.85" />
+        <stop offset="0.6" stopColor="#BAE6FD" stopOpacity="0.2" />
+        <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="32" cy="56" rx="16" ry="3.5" fill="#1E3A8A" opacity="0.25" />
+    <path
+      d="M36 6L18 32H32L26 58L48 28H34L40 6H36Z"
+      fill="url(#lightGrad)"
+      stroke="#BFDBFE"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M35 8L20 31H32L28 50L44 29H33L37 8H35Z"
+      fill="url(#lightSpecular)"
+    />
+    <path
+      d="M36 6L18 32H32"
+      stroke="#FFFFFF"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      opacity="0.9"
+    />
+  </svg>
+);
+
+const GlassKeysIcon: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 64 64" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="keyGrad" x1="14" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#60A5FA" />
+        <stop offset="0.4" stopColor="#2563EB" />
+        <stop offset="0.8" stopColor="#1E3A8A" />
+        <stop offset="1" stopColor="#0B1329" />
+      </linearGradient>
+      <linearGradient id="keyGloss" x1="20" y1="14" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FFFFFF" stopOpacity="0.8" />
+        <stop offset="0.5" stopColor="#93C5FD" stopOpacity="0.2" />
+        <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="32" cy="54" rx="20" ry="4" fill="#1E3A8A" opacity="0.25" />
+    <rect x="12" y="32" width="40" height="20" rx="4" fill="url(#keyGrad)" stroke="#93C5FD" strokeWidth="1.2" />
+    <rect x="15" y="35" width="34" height="14" rx="2.5" fill="#1E3A8A" fillOpacity="0.4" />
+    <path d="M14 34L50 34" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+    <path
+      d="M26 12C26 8.7 28.7 6 32 6C35.3 6 38 8.7 38 12V24C38 27.3 35.3 30 32 30C28.7 30 26 27.3 26 24V12Z"
+      fill="url(#keyGrad)"
+      stroke="#BFDBFE"
+      strokeWidth="1.2"
+    />
+    <circle cx="32" cy="14" r="3.5" fill="#0F172A" stroke="#93C5FD" strokeWidth="1" />
+    <path
+      d="M28 12C28 9.8 29.8 8 32 8C33.5 8 34.8 8.8 35.4 10H30V24C30 25.5 30.8 26.8 32 27.4C30 27 28 25.5 28 24V12Z"
+      fill="url(#keyGloss)"
+    />
+  </svg>
+);
 
 interface LocalLead {
   id: string;
@@ -214,21 +328,29 @@ export const ContactPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 3 Piliers de Confiance */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 text-center">
-              <ShieldCheck className="w-5 h-5 text-[#e10600] mx-auto mb-1.5" />
-              <span className="text-[11px] font-bold block text-zinc-900 dark:text-white">100% Certifié</span>
+          {/* 3 Piliers de Confiance (Style 3D Image 4 sur Fond Blanc, sans aucun contour de bloc) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="p-3 bg-white dark:bg-transparent text-center flex flex-col items-center border-0 shadow-none">
+              <div className="mb-2">
+                <GlassShieldIcon className="w-13 h-13" />
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold block text-zinc-950 dark:text-white leading-snug">100% Certifié</span>
               <span className="text-[10px] text-zinc-500 font-light">Origine constructeur</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 text-center">
-              <Award className="w-5 h-5 text-[#e10600] mx-auto mb-1.5" />
-              <span className="text-[11px] font-bold block text-zinc-900 dark:text-white">Garantie 0 km</span>
+
+            <div className="p-3 bg-white dark:bg-transparent text-center flex flex-col items-center border-0 shadow-none">
+              <div className="mb-2">
+                <GlassLightningIcon className="w-13 h-13" />
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold block text-zinc-950 dark:text-white leading-snug">Garantie 0 km</span>
               <span className="text-[10px] text-zinc-500 font-light">3 à 8 ans officiels</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 text-center">
-              <Sparkles className="w-5 h-5 text-[#e10600] mx-auto mb-1.5" />
-              <span className="text-[11px] font-bold block text-zinc-900 dark:text-white">Clés en Main</span>
+
+            <div className="p-3 bg-white dark:bg-transparent text-center flex flex-col items-center border-0 shadow-none">
+              <div className="mb-2">
+                <GlassKeysIcon className="w-13 h-13" />
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold block text-zinc-950 dark:text-white leading-snug">Clés en Main</span>
               <span className="text-[10px] text-zinc-500 font-light">Plaques & carte grise</span>
             </div>
           </div>
@@ -261,7 +383,7 @@ export const ContactPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStatus('idle')}
-                  className="px-5 py-2 rounded-full bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors"
+                  className="px-5 py-2 rounded-none bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors"
                 >
                   Envoyer une autre demande
                 </button>
@@ -294,14 +416,12 @@ export const ContactPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                     Numéro de Téléphone (Appels ou WhatsApp) <span className="text-[#e10600]">*</span>
                   </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    required
+                  <PhoneInputWithCountry
                     value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+225 07 XX XX XX XX"
-                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-[#e10600]"
+                    onChange={(p) => setFormData((prev) => ({ ...prev, phone: p }))}
+                    required
+                    placeholder="07 01 20 20 21"
+                    variant="rounded"
                   />
                 </div>
 
@@ -336,7 +456,7 @@ export const ContactPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="w-full py-3.5 rounded-full bg-[#e10600] hover:bg-[#c30500] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3.5 rounded-none bg-[#e10600] hover:bg-[#c30500] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {status === 'loading' ? (
                     <>

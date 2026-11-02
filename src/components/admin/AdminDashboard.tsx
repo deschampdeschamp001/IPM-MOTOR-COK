@@ -43,6 +43,7 @@ import {
   getAllVehiclesForAdmin,
   saveVehicleToDB,
   deleteVehicleFromDB,
+  deleteAllVehiclesFromDB,
   toggleVehicleVisibility,
   getLeadsFromDB,
   uploadVehicleImage,
@@ -160,14 +161,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   // Vehicles state
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('ipm_cached_vehicles') : null;
-    if (saved) {
+    if (saved !== null) {
       try {
         return JSON.parse(saved);
       } catch {
         // fallback
       }
     }
-    return FALLBACK_VEHICLES;
+    return [];
   });
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [vehiclesDataSource, setVehiclesDataSource] = useState<'supabase' | 'cache' | 'local'>('local');
@@ -288,14 +289,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
 
     if (!isSupabaseConfigured()) {
       setVehiclesDataSource('local');
-      if (saved) {
+      if (saved !== null) {
         try {
           setVehicles(JSON.parse(saved));
         } catch {
-          setVehicles(FALLBACK_VEHICLES);
+          setVehicles([]);
         }
       } else {
-        setVehicles(FALLBACK_VEHICLES);
+        setVehicles([]);
       }
       setIsLoadingVehicles(false);
       return;
@@ -303,26 +304,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
 
     const { data, error } = await getAllVehiclesForAdmin();
     if (error) {
-      // Distinction claire : Erreur de connexion / requête Supabase
       setVehiclesLoadError(error.message);
       setVehiclesDataSource('cache');
-      showNotification('Connexion Supabase : ' + error.message + ' (Cache local affiché)', 'error');
-      if (saved) {
+      if (saved !== null) {
         try {
           setVehicles(JSON.parse(saved));
         } catch {
-          setVehicles(FALLBACK_VEHICLES);
+          setVehicles([]);
         }
       } else {
-        setVehicles(FALLBACK_VEHICLES);
+        setVehicles([]);
       }
     } else {
-      // Succès : Même si data est [] (base vide), on respecte l'état réel !
-      setVehicles(data || []);
+      const currentList = data || [];
+      setVehicles(currentList);
       setVehiclesDataSource('supabase');
       setVehiclesLoadError(null);
       if (typeof window !== 'undefined') {
-        localStorage.setItem('ipm_cached_vehicles', JSON.stringify(data || []));
+        localStorage.setItem('ipm_cached_vehicles', JSON.stringify(currentList));
+        window.dispatchEvent(new CustomEvent('ipm_vehicles_updated', { detail: currentList }));
       }
     }
     setIsLoadingVehicles(false);
@@ -493,6 +493,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
       setVehicles(updated);
       if (typeof window !== 'undefined') {
         localStorage.setItem('ipm_cached_vehicles', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('ipm_vehicles_updated', { detail: updated }));
       }
       setDeleteConfirmVehicleId(null);
       showNotification('Véhicule supprimé définitivement de la base de données');
@@ -501,6 +502,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
       setVehicles(updated);
       if (typeof window !== 'undefined') {
         localStorage.setItem('ipm_cached_vehicles', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('ipm_vehicles_updated', { detail: updated }));
       }
       setDeleteConfirmVehicleId(null);
       showNotification('Véhicule supprimé (Mode local démo)');
@@ -589,9 +591,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
       setVehicles(updatedVehicles);
       if (typeof window !== 'undefined') {
         localStorage.setItem('ipm_cached_vehicles', JSON.stringify(updatedVehicles));
+        window.dispatchEvent(new CustomEvent('ipm_vehicles_updated', { detail: updatedVehicles }));
       }
       setIsSavingVehicle(false);
-      showNotification('Véhicule enregistré avec succès (Mode local démo) !');
+      showNotification('Véhicule enregistré avec succès !');
       setEditingVehicle(null);
     }
   };
@@ -816,27 +819,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
     reader.readAsDataURL(file);
   };
 
-  const handleLoadDefaultCatalogue = async () => {
+  const handleDeleteAllVehicles = async () => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer TOUS les véhicules du catalogue ? Cette action est irréversible.')) return;
     setIsLoadingVehicles(true);
     try {
       if (isSupabaseConfigured()) {
-        showNotification('Synchronisation des exemples prédéfinis du catalogue avec Supabase...', 'success');
-        let count = 0;
-        for (const v of FALLBACK_VEHICLES) {
-          const { error } = await saveVehicleToDB(v);
-          if (!error) count++;
+        const { success, error } = await deleteAllVehiclesFromDB();
+        if (!success) {
+          showNotification('Échec de la suppression sur Supabase : ' + (error?.message || ''), 'error');
+          setIsLoadingVehicles(false);
+          return;
         }
-        await loadVehicles();
-        showNotification(`Catalogue chargé avec succès (${count} véhicules synchronisés sur Supabase) !`);
-      } else {
-        setVehicles(FALLBACK_VEHICLES);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('ipm_cached_vehicles', JSON.stringify(FALLBACK_VEHICLES));
-        }
-        showNotification(`Catalogue chargé avec succès (${FALLBACK_VEHICLES.length} véhicules préremplis) !`);
       }
+      setVehicles([]);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ipm_cached_vehicles', JSON.stringify([]));
+        window.dispatchEvent(new CustomEvent('ipm_vehicles_updated', { detail: [] }));
+      }
+      showNotification('Tous les véhicules ont été supprimés avec succès.');
     } catch (err: any) {
-      showNotification('Erreur de chargement des exemples : ' + (err?.message || ''), 'error');
+      showNotification('Erreur : ' + (err?.message || ''), 'error');
     } finally {
       setIsLoadingVehicles(false);
     }
@@ -1374,21 +1376,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
 
           {activeTab === 'vehicles' && (
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleLoadDefaultCatalogue}
-                disabled={isLoadingVehicles}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#222222] hover:bg-[#333333] text-zinc-200 text-xs font-semibold rounded-md transition-colors cursor-pointer border border-[#333333]"
-                title="Importer et préremplir les modèles d'exemples du catalogue (BYD, BMW, Jetour, Toyota, etc.)"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Charger les exemples prédéfinis</span>
-              </button>
+              {vehicles.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleDeleteAllVehicles}
+                  disabled={isLoadingVehicles}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-300 text-xs font-semibold rounded-md transition-colors cursor-pointer border border-red-800/40"
+                  title="Supprimer tous les véhicules du catalogue"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                  <span className="hidden sm:inline">Vider le catalogue</span>
+                  <span className="sm:hidden">Vider</span>
+                </button>
+              )}
 
               <button
                 onClick={() =>
                   setEditingVehicle({
-                    brand: 'Toyota',
+                    brand: brands[0]?.name || 'Toyota',
                     model: '',
                     year: new Date().getFullYear(),
                     type: 'SUV',
@@ -1407,7 +1412,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
                     description: '',
                   })
                 }
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#E10600] hover:bg-[#B00500] text-white text-xs uppercase tracking-wider font-bold rounded-md transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#E10600] hover:bg-[#B00500] text-white text-xs uppercase tracking-wider font-bold rounded-md transition-colors cursor-pointer shadow-lg shadow-[#E10600]/25"
               >
                 <Plus className="w-4 h-4" />
                 <span>Ajouter un véhicule</span>
@@ -1470,53 +1475,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
         {/* Tab 1: Vehicles List */}
         {activeTab === 'vehicles' && (
           <div className="space-y-4">
-            {/* Barre d'état de la source de données (Supabase / Cache / Local) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-[#141416] border border-[#2A2A2E]">
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    vehiclesDataSource === 'supabase'
-                      ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]'
-                      : vehiclesDataSource === 'cache'
-                        ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.7)]'
-                        : 'bg-zinc-500'
-                  }`}
-                />
-                <span className="text-xs font-semibold text-white">
-                  Source :{' '}
-                  {vehiclesDataSource === 'supabase' && 'Supabase Connecté (Données en direct)'}
-                  {vehiclesDataSource === 'cache' && 'Cache Local (Supabase non joignable)'}
-                  {vehiclesDataSource === 'local' && 'Mode Local Démo'}
-                </span>
-                {vehiclesLoadError && (
-                  <span className="text-[11px] text-amber-400 font-mono">({vehiclesLoadError})</span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={loadVehicles}
-                  disabled={isLoadingVehicles}
-                  className="px-3 py-1 rounded bg-[#222226] hover:bg-[#2C2C32] text-xs text-zinc-300 font-medium transition-colors cursor-pointer border border-[#333339]"
-                >
-                  {isLoadingVehicles ? 'Chargement...' : 'Actualiser'}
-                </button>
-              </div>
-            </div>
-
             {isLoadingVehicles ? (
               <div className="p-12 text-center text-[#8A8A8A]">Chargement des véhicules...</div>
             ) : vehicles.length === 0 ? (
-              <div className="p-12 text-center bg-[#141414] rounded-lg border border-[#2A2A2A] space-y-3">
-                <p className="text-sm text-[#8A8A8A]">Aucun véhicule dans la base de données distante.</p>
+              <div className="p-12 sm:p-16 text-center bg-[#141414] rounded-2xl border border-[#2A2A2A] space-y-4 max-w-xl mx-auto my-6">
+                <div className="w-14 h-14 mx-auto rounded-full bg-red-500/10 text-[#E10600] flex items-center justify-center">
+                  <Car className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-base font-bold text-white">Catalogue vide</h4>
+                  <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                    Aucun véhicule dans votre catalogue pour le moment. Cliquez ci-dessous pour publier votre premier modèle 0 km.
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={handleLoadDefaultCatalogue}
-                  disabled={isLoadingVehicles}
-                  className="px-4 py-2 bg-[#E10600] hover:bg-[#b00500] text-xs text-white rounded font-medium shadow-md transition-colors cursor-pointer"
+                  onClick={() =>
+                    setEditingVehicle({
+                      brand: brands[0]?.name || 'Toyota',
+                      model: '',
+                      year: new Date().getFullYear(),
+                      type: 'SUV',
+                      fuel: 'Essence',
+                      transmission: 'Automatique',
+                      seats: 5,
+                      price: null,
+                      price_label: 'Sur demande',
+                      is_available: true,
+                      is_featured: false,
+                      is_offer: false,
+                      is_exclusive: false,
+                      offer_badge: '',
+                      offer_highlights: [],
+                      images: [],
+                      description: '',
+                    })
+                  }
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#E10600] hover:bg-[#b00500] text-xs font-bold uppercase tracking-wider text-white rounded-lg transition-colors cursor-pointer shadow-lg shadow-[#E10600]/25"
                 >
-                  Charger les exemples prédéfinis du catalogue
+                  <Plus className="w-4 h-4" />
+                  <span>Ajouter un premier véhicule</span>
                 </button>
               </div>
             ) : (

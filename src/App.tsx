@@ -61,7 +61,7 @@ function AppRouter() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen overflow-x-hidden bg-[var(--bg)] text-[var(--fg)] transition-colors duration-200">
+    <div className="flex flex-col min-h-screen bg-[var(--bg)] text-[var(--fg)] transition-colors duration-200">
       <Navbar />
       <main className="flex-1 pb-16 lg:pb-0">
         <PageComponent />

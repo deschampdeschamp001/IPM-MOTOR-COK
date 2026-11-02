@@ -479,30 +479,76 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. CARTE PARC AUTOMOBILE IPM MOTORS (SANS LOGOS NI BORDURES LOURDES, PLEINEMENT RESPONSIVE) */}
-      <section className="py-10 sm:py-14 px-6 sm:px-12 lg:px-20 xl:px-28 max-w-[1550px] mx-auto w-full">
-        <div className="flex items-center justify-between mb-4">
+      {/* 8. CARTE PARC AUTOMOBILE IPM MOTORS (FULL-BLEED BORD À BORD) */}
+      <section className="map-section map-section--media-right bg-[var(--surface)] text-[var(--fg)] border-t border-b border-[var(--border)]">
+        <div className="map-section__text space-y-5">
           <div>
-            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-1">
-              Accès & Itinéraire
-            </span>
-            <h2 className="font-heading font-semibold text-lg sm:text-2xl text-[var(--fg)] tracking-tight">
-              Localisez notre Parc Automobile IPM Motors
+            <div className="inline-flex items-center gap-2 mb-2">
+              <span className="w-4 h-[2px] bg-[#e10600]" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#e10600]">
+                Accès & Itinéraire
+              </span>
+            </div>
+            <h2 className="font-heading font-semibold text-2xl sm:text-3xl lg:text-4xl text-[var(--fg)] tracking-tight leading-tight">
+              Automobile <span className="text-[#e10600]">IPM Motors</span>
             </h2>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-light mt-2 max-w-lg leading-relaxed">
+              Venez découvrir nos véhicules neufs 0 km en exposition au showroom de Cocody Riviera Bonoumin ou rencontrer un conseiller pour une commande personnalisée.
+            </p>
           </div>
-          <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Riviera+Bonoumin+Abidjan+Cote+d'Ivoire"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-[#e10600] hover:underline font-semibold inline-flex items-center gap-1.5"
-          >
-            <span>Afficher l'itinéraire</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+
+          <div className="space-y-3 pt-1 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
+            <div className="flex items-start gap-3">
+              <MapPin className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-[var(--fg)] font-medium">Adresse</strong>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {DEALERSHIP_CONFIG.address}, {DEALERSHIP_CONFIG.city}
+                </span>
+                <p className="text-[11px] text-zinc-500 font-light mt-0.5">
+                  Près du feu tricolore de la pharmacie Saint Paul (ou mosquée Mont Arafat)
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Clock className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-[var(--fg)] font-medium">Horaires d'accueil</strong>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                  Du Lundi au Samedi : 08h00 – 18h30
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Phone className="w-4 h-4 text-[#e10600] shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-[var(--fg)] font-medium">Ligne directe conseillers</strong>
+                <a
+                  href={`tel:${DEALERSHIP_CONFIG.phone}`}
+                  className="text-xs font-semibold text-[#e10600] hover:underline"
+                >
+                  {DEALERSHIP_CONFIG.phoneDisplay}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=Riviera+Bonoumin+Abidjan+Cote+d'Ivoire"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#e10600] hover:bg-[#c30500] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-[#e10600]/25 cursor-pointer min-h-[44px]"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Afficher l'itinéraire</span>
+            </a>
+          </div>
         </div>
 
-        {/* Conteneur de la Carte panoramique responsive */}
-        <div className="relative rounded-2xl overflow-hidden bg-zinc-900 shadow-md w-full h-[300px] sm:h-[400px]">
+        <div className="map-section__media">
           {/* Iframe Carte Interactive Abidjan Riviera Bonoumin */}
           <iframe
             title="Localisation Parc Automobile IPM Motors - Cocody Riviera Bonoumin"
@@ -511,29 +557,43 @@ export const HomePage: React.FC = () => {
             loading="lazy"
           />
 
-          {/* Badge flottant bas-gauche */}
-          <div className="absolute bottom-4 left-4 z-10">
+          {/* Bouton flottant haut-gauche: Ouvrir dans Maps */}
+          <div className="absolute top-4 left-4 z-10 max-w-[calc(100%-32px)]">
+            <a
+              href="https://maps.google.com/?q=Riviera+Bonoumin,+Cocody,+Abidjan,+Cote+d'Ivoire"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-black/85 hover:bg-black text-white text-xs font-semibold px-4 py-2.5 min-h-[44px] rounded-full border border-white/20 backdrop-blur-md shadow-lg transition-all"
+            >
+              <ExternalLink className="w-4 h-4 text-[#e10600] shrink-0" />
+              <span className="truncate">Ouvrir dans Maps</span>
+            </a>
+          </div>
+
+          {/* Bouton flottant bas-gauche: Itinéraire Parc Automobile */}
+          <div className="absolute bottom-4 left-4 z-10 max-w-[calc(100%-32px)]">
             <a
               href="https://www.google.com/maps/dir/?api=1&destination=Riviera+Bonoumin+Abidjan+Cote+d'Ivoire"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white/95 dark:bg-black/90 backdrop-blur-md px-4 py-2 rounded-full border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-900 dark:text-white shadow-lg hover:bg-white dark:hover:bg-black transition-all"
+              className="inline-flex items-center gap-2 bg-white/95 dark:bg-black/90 backdrop-blur-md px-4 py-2.5 min-h-[44px] rounded-full border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-900 dark:text-white shadow-lg hover:bg-white dark:hover:bg-black transition-all"
             >
-              <Navigation className="w-3.5 h-3.5 text-[#e10600]" />
-              <span>Itinéraire Parc Automobile</span>
+              <Navigation className="w-3.5 h-3.5 text-[#e10600] shrink-0" />
+              <span className="truncate">Itinéraire Parc Automobile</span>
             </a>
           </div>
 
-          {/* Badge central Parc Automobile VIP */}
+          {/* Badge Parc Automobile VIP haut-droit */}
           <div className="absolute top-4 right-4 z-10 hidden sm:flex items-center gap-2 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-white text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-[#e10600] animate-ping" />
             <span>Parc Automobile Bonoumin</span>
           </div>
         </div>
+      </section>
 
-        {/* 9. ACTUALITÉS (DESIGN FIDÈLE À L'IMAGE 2 & 3 : BORDURES CARRÉES, PETITE TAILLE, TOUT VOIR À CÔTÉ DES CHIFFRES) */}
-        <div className="mt-10 sm:mt-14 mb-8">
-          <div className="mb-6">
+      {/* 9. ACTUALITÉS (DESIGN FIDÈLE À L'IMAGE 2 & 3 : BORDURES CARRÉES, PETITE TAILLE, TOUT VOIR À CÔTÉ DES CHIFFRES) */}
+      <section className="py-10 sm:py-14 px-6 sm:px-12 lg:px-20 xl:px-28 max-w-[1550px] mx-auto w-full">
+        <div className="mb-6">
             <div className="inline-flex items-center gap-2 mb-1">
               <span className="w-4 h-[2px] bg-[#e10600]" />
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#e10600]">
@@ -660,7 +720,6 @@ export const HomePage: React.FC = () => {
               <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-        </div>
       </section>
 
       {/* 8.5. TEMOIGNAGES CLIENTS (Clients heureux, nous aussi !) */}

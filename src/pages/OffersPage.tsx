@@ -92,10 +92,12 @@ export const OffersPage: React.FC = () => {
 
   const exclusiveCount = vehicles.filter((v) => (v.is_offer || v.is_featured) && v.is_exclusive).length;
 
+  const hasOfferTagged = useMemo(() => vehicles.some((v) => v.is_offer || v.is_featured), [vehicles]);
+
   const offerVehicles = useMemo(() => {
     return vehicles.filter((v) => {
-      const isOfferEligible = v.is_offer || v.is_featured;
-      if (!isOfferEligible) return false;
+      // If vehicles have explicit offer flags, filter by them; otherwise show all available vehicles
+      if (hasOfferTagged && !v.is_offer && !v.is_featured) return false;
 
       // Text search
       if (searchQuery.trim()) {
@@ -121,7 +123,7 @@ export const OffersPage: React.FC = () => {
       }
       return true;
     });
-  }, [vehicles, selectedFilter, searchQuery]);
+  }, [vehicles, hasOfferTagged, selectedFilter, searchQuery]);
 
   // Two rows of 3 columns = first 6 vehicles
   const firstBatch = offerVehicles.slice(0, 6);
@@ -144,25 +146,25 @@ export const OffersPage: React.FC = () => {
     return (
       <div
         key={vehicle.id}
-        className="rounded-none border border-zinc-200/90 bg-white dark:bg-[#141416] overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-md transition-all duration-300 group"
+        className="rounded-2xl border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-[#141416] overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-md transition-all duration-300 group"
       >
         <div>
           {/* 1. PHOTO DU VÉHICULE AVEC BADGES PURS */}
           <Link
             to={`/vehicule/${vehicle.id}`}
-            className="block relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden rounded-none"
+            className="block relative aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 overflow-hidden rounded-t-2xl"
           >
             <img
               src={mainImg}
               alt={`${vehicle.brand} ${vehicle.model}`}
-              className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500 ease-out rounded-none"
+              className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500 ease-out"
               onError={(e) => {
                 e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
               }}
             />
 
             {/* Pastille discrète de logo de marque en bas à droite */}
-            <div className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-none bg-white/95 dark:bg-black/90 backdrop-blur-xs shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center p-1 z-10">
+            <div className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-lg bg-white/95 dark:bg-black/90 backdrop-blur-xs shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center p-1 z-10">
               {brandLogo ? (
                 <img
                   src={brandLogo}
@@ -181,11 +183,11 @@ export const OffersPage: React.FC = () => {
 
             {/* Badges 0 KM et VIP en haut à gauche */}
             <div className="absolute top-2.5 left-2.5 flex items-center gap-1">
-              <span className="px-2 py-0.5 rounded-none text-[9px] font-bold uppercase tracking-wider bg-zinc-950/85 text-white backdrop-blur-xs shadow-xs">
+              <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-zinc-950/85 text-white backdrop-blur-xs shadow-xs">
                 0 km Neuf
               </span>
               {vehicle.is_exclusive && (
-                <span className="px-2 py-0.5 rounded-none text-[9px] font-black uppercase tracking-wider bg-[#f6b704] text-zinc-950 shadow-xs">
+                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#f6b704] text-zinc-950 shadow-xs">
                   Privilège
                 </span>
               )}
@@ -248,8 +250,8 @@ export const OffersPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 3. Boutons d'action carrés : Je suis intéressé + WhatsApp */}
-        <div className="px-3.5 pb-3.5 pt-1 flex items-center gap-2">
+        {/* 3. Boutons d'action arrondis : Je suis intéressé + WhatsApp (Minimaliste & Responsive) */}
+        <div className="px-3 pb-3 sm:px-3.5 sm:pb-3.5 pt-1 flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => setLeadVehicle({
@@ -260,18 +262,20 @@ export const OffersPage: React.FC = () => {
               price: priceText,
               fuel: vehicle.fuel
             })}
-            className="flex-1 py-2 rounded-none bg-[#e10600] hover:bg-[#c30500] text-white text-center text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer truncate shadow-xs"
+            className="flex-1 min-w-0 h-8 sm:h-9 px-1.5 sm:px-2 rounded-xl bg-[#e10600] hover:bg-[#c30500] text-white text-center text-[8.5px] min-[360px]:text-[9.5px] sm:text-xs font-bold uppercase tracking-tight transition-all cursor-pointer truncate shadow-xs flex items-center justify-center leading-none"
+            title="Je suis intéressé par ce véhicule"
           >
-            Je suis intéressé
+            <span className="truncate whitespace-nowrap block">Je suis intéressé</span>
           </button>
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="py-2 px-3 rounded-none bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer shrink-0"
+            className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer shrink-0"
+            title="Contacter sur WhatsApp"
           >
-            <WhatsAppIcon className="w-3.5 h-3.5" />
-            <span className="text-[10px] uppercase font-bold">WA</span>
+            <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+            <span className="hidden sm:inline text-[10px] uppercase font-bold">WA</span>
           </a>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { DEALERSHIP_CONFIG, buildWhatsAppUrl } from '../config/dealership';
 import { recordLeadInDB } from '../lib/supabase';
 import { Vehicle } from '../types';
 import { useTheme } from '../context/ThemeContext';
+import { PhoneInputWithCountry } from './PhoneInputWithCountry';
 
 interface ContactSectionProps {
   vehicles: Vehicle[];
@@ -284,17 +285,12 @@ ${formData.message ? `Message : ${formData.message}` : 'Je souhaite recevoir des
                       <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${isDark ? 'text-[#8A8A8A]' : 'text-neutral-600'}`}>
                         Numéro de téléphone *
                       </label>
-                      <input
-                        type="tel"
-                        required
+                      <PhoneInputWithCountry
                         value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="Ex: 07 01 02 03 04"
-                        className={`w-full px-3.5 py-2.5 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-[#E10600] transition-colors ${
-                          isDark
-                            ? 'bg-[#0A0A0A] border border-[#2A2A2A] text-white focus:border-[#E10600]'
-                            : 'bg-white border border-neutral-300 text-neutral-900 focus:border-[#E10600]'
-                        }`}
+                        onChange={(val) => setFormData({ ...formData, phone: val })}
+                        required
+                        placeholder="07 01 20 20 21"
+                        variant="rounded"
                       />
                     </div>
                   </div>

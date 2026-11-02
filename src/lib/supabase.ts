@@ -172,6 +172,23 @@ export async function deleteVehicleFromDB(id: string): Promise<{ success: boolea
 }
 
 /**
+ * Admin: Delete all vehicles (clear catalogue completely)
+ */
+export async function deleteAllVehiclesFromDB(): Promise<{ success: boolean; error: Error | null }> {
+  if (!supabase) {
+    return { success: false, error: new Error('Supabase non configuré') };
+  }
+
+  try {
+    const { error } = await supabase.from('vehicles').delete().not('id', 'is', null);
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (err: any) {
+    return { success: false, error: new Error(err.message || 'Erreur de suppression globale') };
+  }
+}
+
+/**
  * Admin: Toggle visibility
  */
 export async function toggleVehicleVisibility(id: string, is_available: boolean): Promise<{ success: boolean; error: Error | null }> {

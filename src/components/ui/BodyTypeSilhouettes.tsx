@@ -8,6 +8,7 @@ import pickupImg from '../../assets/images/bodytype_pickup_1793375584946.jpg';
 import citadineImg from '../../assets/images/bodytype_citadine_1793375603264.jpg';
 import fourByFourImg from '../../assets/images/bodytype_4x4_1793375622287.jpg';
 import electriqueImg from '../../assets/images/bodytype_electrique_1793375642616.jpg';
+import utilitaireImg from '../../assets/images/ambulance_utilitaire_1793717072463.jpg';
 
 export interface BodyTypeItem {
   id: string;
@@ -19,11 +20,11 @@ export interface BodyTypeItem {
 
 export const BODY_TYPES: BodyTypeItem[] = [
   {
-    id: '4x4',
-    name: '4X4',
-    label: '4X4 BAROUDEUR',
-    sublabel: 'Tout-terrain & Expédition',
-    image: fourByFourImg,
+    id: 'SUV',
+    name: 'SUV',
+    label: 'SUV & CROSSOVER',
+    sublabel: 'Familial & Grand Espace',
+    image: suvImg,
   },
   {
     id: 'Berline',
@@ -33,11 +34,11 @@ export const BODY_TYPES: BodyTypeItem[] = [
     image: berlineImg,
   },
   {
-    id: 'SUV',
-    name: 'SUV',
-    label: 'SUV & CROSSOVER',
-    sublabel: 'Familial & Grand Espace',
-    image: suvImg,
+    id: '4x4',
+    name: '4X4',
+    label: '4X4 BAROUDEUR',
+    sublabel: 'Tout-terrain & Expédition',
+    image: fourByFourImg,
   },
   {
     id: 'Pick-up',
@@ -45,6 +46,13 @@ export const BODY_TYPES: BodyTypeItem[] = [
     label: 'PICK-UP DOUBLE CABINE',
     sublabel: 'Puissance & Charge utile',
     image: pickupImg,
+  },
+  {
+    id: 'Utilitaire',
+    name: 'UTILITAIRE',
+    label: 'UTILITAIRE & SANTÉ',
+    sublabel: 'Ambulance & Flotte Pro',
+    image: utilitaireImg,
   },
   {
     id: 'Citadine',
@@ -72,7 +80,7 @@ export const BodyTypeSilhouettes: React.FC<BodyTypeSilhouettesProps> = ({
   onSelect,
 }) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
       {BODY_TYPES.map((item) => {
         const isSelected = activeType?.toLowerCase() === item.id.toLowerCase();
 

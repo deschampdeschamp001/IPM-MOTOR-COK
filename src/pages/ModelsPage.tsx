@@ -60,7 +60,7 @@ export const ModelsPage: React.FC = () => {
     return Array.from(brandSet);
   }, [brands]);
 
-  const vehicleTypesList = ['SUV', 'Berline', 'Pick-up', 'Électrique', 'Citadine', 'Coupé'];
+  const vehicleTypesList = ['SUV', 'Berline', 'Pick-up', 'Utilitaire', '4x4', 'Électrique', 'Citadine', 'Coupé'];
   const availableEnergies = ['100% Électrique', 'Hybride', 'Essence', 'Diesel'];
 
   // Toggle multi-select functions

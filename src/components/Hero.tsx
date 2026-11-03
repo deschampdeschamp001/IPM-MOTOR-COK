@@ -107,10 +107,10 @@ export const Hero: React.FC = () => {
                   e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
                 }}
               />
-              {/* Dégradé noir profond et homogène pour lisibilité parfaite des textes et de la barre de recherche */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/55 z-1" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-black/50 to-black/40 z-1" />
-              <div className="absolute inset-0 bg-black/35 z-1" />
+              {/* Dégradé allégé avec nuance jaune / ambre dorée chaleureuse selon la demande utilisateur */}
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-950/70 via-black/40 to-yellow-500/15 z-1" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-amber-900/20 to-transparent z-1" />
+              <div className="absolute inset-0 bg-amber-500/5 mix-blend-overlay z-1" />
             </div>
           ))}
         </div>

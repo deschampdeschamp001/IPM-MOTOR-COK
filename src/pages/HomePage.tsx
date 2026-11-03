@@ -298,37 +298,49 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* BANNIÈRE ACCUEIL PRIVILÈGE & CONSEILS PERSONNALISÉS (IMAGE ORIGINALE PURE SANS TEXTE INTÉGRÉ, SANS BUG) */}
-      <section className="py-6 sm:py-8 px-6 sm:px-12 lg:px-20 xl:px-28 max-w-[1550px] mx-auto w-full">
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl min-h-[220px] sm:min-h-[260px] flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 sm:p-10 lg:p-12 gap-6 bg-zinc-950">
-          <img
-            src={clientServiceBannerImg}
-            alt="Accueil Privilège et Conseils Personnalisés IPM Motors"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-          {/* Dégradé noir profond pour faire ressortir le texte parfaitement */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/35" />
-
-          <div className="relative z-10 max-w-xl">
-            <span className="text-[#e10600] text-xs font-bold uppercase tracking-widest block mb-2">
-              Accueil Privilège & Conseils Personnalisés
-            </span>
-            <h3 className="font-heading font-bold text-xl sm:text-2xl lg:text-3xl text-white tracking-tight leading-snug">
-              Une équipe dédiée à votre projet automobile
-            </h3>
-            <p className="text-xs sm:text-sm text-zinc-200 font-light mt-2 leading-relaxed">
-              Prenez rendez-vous dès aujourd’hui pour une présentation exclusive ou un essai privé de nos modèles 0 km à Cocody Riviera Bonoumin.
-            </p>
+      {/* SECTION ACCUEIL PRIVILÈGE & CONSEILS PERSONNALISÉS (DESIGN FIDÈLE À L'IMAGE 9 : SPLIT ÉDITORIAL LUXE) */}
+      <section className="py-12 sm:py-16 px-6 sm:px-12 lg:px-20 xl:px-28 max-w-[1550px] mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+          {/* Colonne Gauche : Photo paysage épurée sans texte sur l'image (Exact Image 9) */}
+          <div className="lg:col-span-6 xl:col-span-7">
+            <div className="relative aspect-[16/10] overflow-hidden rounded-xl sm:rounded-2xl shadow-md border border-zinc-200/90 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 group">
+              <img
+                src={clientServiceBannerImg}
+                alt="Accueil Privilège et Conseils Personnalisés IPM Motors"
+                loading="lazy"
+                className="w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-700 ease-out"
+                onError={(e) => {
+                  e.currentTarget.src = '/public/assets/aistudio/814493891_122239370216113743_2889832111464126919_n_8772dda4.jpg';
+                }}
+              />
+            </div>
           </div>
 
-          <div className="relative z-10 shrink-0">
-            <Link
-              to="/contact"
-              className="pill-btn inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 sm:py-4 bg-[#e10600] hover:bg-[#c30500] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-xl hover:scale-105"
-            >
-              <span>Prendre rendez-vous</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+          {/* Colonne Droite : Typographie éditoriale pure et lien fléché (Exact Image 9) */}
+          <div className="lg:col-span-6 xl:col-span-5 space-y-4 sm:space-y-5">
+            <h2 className="font-heading font-light text-2xl sm:text-3xl lg:text-4xl text-[var(--fg)] tracking-tight leading-snug">
+              Accueil Privilège & <span className="font-semibold text-[#e10600]">Conseils Personnalisés.</span>
+            </h2>
+
+            <p className="text-sm sm:text-base text-zinc-700 dark:text-zinc-300 font-normal leading-relaxed">
+              Une équipe dédiée à votre projet automobile. Offrez à chaque acquisition une nouvelle dimension. Parfaitement conçue pour répondre à vos exigences de prestige, notre conciergerie privée vous garantit discrétion et excellence.
+            </p>
+
+            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-light leading-relaxed">
+              Prenez rendez-vous dès aujourd’hui pour une présentation exclusive ou un essai privé de nos modèles 0 km à Cocody Riviera Bonoumin.
+            </p>
+
+            <div className="pt-2">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-zinc-950 dark:text-white hover:text-[#e10600] dark:hover:text-[#e10600] transition-colors group cursor-pointer"
+              >
+                <span>Accueil Privilège & Conseils Personnalisés</span>
+                <span className="font-mono text-lg font-bold group-hover:translate-x-1.5 transition-transform">
+                  &gt;
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -556,38 +568,6 @@ export const HomePage: React.FC = () => {
             className="w-full h-full border-0 filter contrast-[1.05] opacity-90 dark:opacity-80"
             loading="lazy"
           />
-
-          {/* Bouton flottant haut-gauche: Ouvrir dans Maps */}
-          <div className="absolute top-4 left-4 z-10 max-w-[calc(100%-32px)]">
-            <a
-              href="https://maps.google.com/?q=Riviera+Bonoumin,+Cocody,+Abidjan,+Cote+d'Ivoire"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-black/85 hover:bg-black text-white text-xs font-semibold px-4 py-2.5 min-h-[44px] rounded-full border border-white/20 backdrop-blur-md shadow-lg transition-all"
-            >
-              <ExternalLink className="w-4 h-4 text-[#e10600] shrink-0" />
-              <span className="truncate">Ouvrir dans Maps</span>
-            </a>
-          </div>
-
-          {/* Bouton flottant bas-gauche: Itinéraire Parc Automobile */}
-          <div className="absolute bottom-4 left-4 z-10 max-w-[calc(100%-32px)]">
-            <a
-              href="https://www.google.com/maps/dir/?api=1&destination=Riviera+Bonoumin+Abidjan+Cote+d'Ivoire"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white/95 dark:bg-black/90 backdrop-blur-md px-4 py-2.5 min-h-[44px] rounded-full border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-900 dark:text-white shadow-lg hover:bg-white dark:hover:bg-black transition-all"
-            >
-              <Navigation className="w-3.5 h-3.5 text-[#e10600] shrink-0" />
-              <span className="truncate">Itinéraire Parc Automobile</span>
-            </a>
-          </div>
-
-          {/* Badge Parc Automobile VIP haut-droit */}
-          <div className="absolute top-4 right-4 z-10 hidden sm:flex items-center gap-2 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-white text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#e10600] animate-ping" />
-            <span>Parc Automobile Bonoumin</span>
-          </div>
         </div>
       </section>
 

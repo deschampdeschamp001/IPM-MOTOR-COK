@@ -121,6 +121,9 @@ export const OffersPage: React.FC = () => {
       if (selectedFilter === 'sedan') {
         return v.type.toLowerCase().includes('berline') || v.type.toLowerCase().includes('citadine');
       }
+      if (selectedFilter === 'utilitaire') {
+        return v.type.toLowerCase().includes('utilitaire') || (v.model || '').toLowerCase().includes('ambulance');
+      }
       return true;
     });
   }, [vehicles, hasOfferTagged, selectedFilter, searchQuery]);
@@ -327,32 +330,46 @@ export const OffersPage: React.FC = () => {
         </h1>
       </div>
 
-      {/* 2. Filtres & Barre de recherche minimalistes et responsives */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-        {/* Pills de filtres responsives défilables */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 -mx-4 px-4 md:mx-0 md:px-0">
+      {/* 2. Filtres & Barre de recherche (Nouveau Design Luxe Segmenté) */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+        {/* Barre de filtres élégante segmentée */}
+        <div className="inline-flex items-center p-1 rounded-2xl bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs gap-1 overflow-x-auto scrollbar-none max-w-full -mx-2 px-2 md:mx-0 md:px-1">
           {[
-            { id: 'all', label: `Toutes (${vehicles.filter(v => v.is_offer || v.is_featured).length})` },
-            { id: 'exclusive', label: `VIP Exclusif (${exclusiveCount})`, isSpecial: true },
+            { id: 'all', label: 'Toutes les offres', count: vehicles.filter(v => v.is_offer || v.is_featured).length || vehicles.length },
+            { id: 'exclusive', label: 'VIP Exclusif', count: exclusiveCount, isSpecial: true },
             { id: 'electric', label: 'Électrique & Hybride' },
             { id: 'suv', label: 'SUV' },
             { id: 'sedan', label: 'Berlines' },
+            { id: 'utilitaire', label: 'Utilitaires' },
           ].map((tab) => {
             const isActive = selectedFilter === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setSelectedFilter(tab.id as any)}
-                className={`h-8 px-3.5 text-xs font-medium rounded-full transition-all inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all duration-200 inline-flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
                   isActive
-                    ? 'bg-[#e10600] text-white font-semibold shadow-xs'
-                    : tab.isSpecial
-                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:border-amber-500'
-                    : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white border border-transparent hover:border-zinc-300 dark:hover:border-zinc-700'
+                    ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-200/90 dark:border-zinc-700'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-zinc-800/50'
                 }`}
               >
-                {tab.isSpecial && <Sparkles className="w-3 h-3 text-amber-500" />}
+                {/* Active indicator dot */}
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#e10600]" />
+                )}
+                {tab.isSpecial && !isActive && (
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                )}
                 <span>{tab.label}</span>
+                {tab.count !== undefined && (
+                  <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none ${
+                    isActive
+                      ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100'
+                      : 'bg-zinc-200/70 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -360,7 +377,7 @@ export const OffersPage: React.FC = () => {
 
         {/* Barre de recherche compacte & compteur */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className="relative flex-1 sm:w-56">
+          <div className="relative flex-1 sm:w-60">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
             <input
               type="text"

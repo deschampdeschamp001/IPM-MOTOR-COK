@@ -38,12 +38,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cached = localStorage.getItem('ipm_cached_vehicles');
     if (cached !== null) {
       try {
-        return JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch {
         // fallback
       }
     }
-    return [];
+    return FALLBACK_VEHICLES;
   });
 
   const [brands, setBrands] = useState<Brand[]>(() => getLocalStoredBrands());
@@ -63,7 +64,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (isSupabaseConfigured()) {
         const { data, error } = await getVehiclesFromDB();
-        if (!error && data !== null) {
+        if (!error && data !== null && data.length > 0) {
           setVehicles(data);
           localStorage.setItem('ipm_cached_vehicles', JSON.stringify(data));
           setIsUsingFallback(false);
@@ -77,13 +78,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem('ipm_cached_vehicles');
     if (saved !== null) {
       try {
-        setVehicles(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setVehicles(parsed);
+          setIsUsingFallback(true);
+          return;
+        }
       } catch {
-        setVehicles([]);
+        // fallback
       }
-    } else {
-      setVehicles([]);
     }
+    setVehicles(FALLBACK_VEHICLES);
     setIsUsingFallback(true);
   }, []);
 

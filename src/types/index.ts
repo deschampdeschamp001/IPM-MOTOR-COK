@@ -1,4 +1,4 @@
-export type VehicleType = 'SUV' | 'Berline' | 'Pick-up' | 'Électrique' | 'Citadine';
+export type VehicleType = 'SUV' | 'Berline' | 'Pick-up' | 'Utilitaire' | '4x4' | 'Électrique' | 'Citadine' | 'Coupé' | string;
 
 export interface Vehicle {
   id: string;
